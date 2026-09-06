@@ -67,66 +67,110 @@ export default function Dashboard() {
   };
 
   // ---------------------------------------------------------------------------
-  // SECURE LOGIN SCREEN VIEW
+  // SECURE LOGIN SCREEN VIEW (Split Screen: Live Land Use Visual & Credentials)
   // ---------------------------------------------------------------------------
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen text-slate-900 font-sans flex items-center justify-center relative overflow-hidden">
-        <div 
-          className="fixed inset-0 bg-cover bg-center pointer-events-none z-0 filter brightness-95 contrast-110"
-          style={{ backgroundImage: `url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2500&auto=format&fit=crop')` }}
-        />
-        <div className="fixed inset-0 bg-gradient-to-tr from-emerald-950/30 via-slate-950/20 to-white/20 pointer-events-none z-0 backdrop-blur-[2px]" />
+      <div className="min-h-screen w-full flex bg-slate-950 font-sans text-slate-100 overflow-hidden">
+        {/* Left Side: Dynamic Visual Showcase of Urbanization, Forest & Water Bodies */}
+        <div className="hidden lg:flex lg:w-7/12 relative flex-col justify-between p-12 overflow-hidden border-r border-slate-800">
+          <div 
+            className="absolute inset-0 bg-cover bg-center filter brightness-90 contrast-105 scale-105"
+            style={{ backgroundImage: `url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2500&auto=format&fit=crop')` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-tr from-slate-950 via-slate-950/60 to-emerald-950/40" />
 
-        <div className="relative z-10 w-full max-w-md p-8 bg-white/90 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/80 space-y-6">
-          <div className="text-center space-y-2">
-            <div className="inline-flex p-3 bg-emerald-600 rounded-2xl shadow-lg shadow-emerald-600/30 text-white mb-2">
-              <Globe2 className="w-8 h-8" />
+          {/* Top Brand Banner */}
+          <div className="relative z-10 flex items-center gap-3">
+            <div className="p-3 bg-emerald-600/90 backdrop-blur-md rounded-2xl shadow-xl border border-emerald-500/30 text-white">
+              <Globe2 className="w-6 h-6" />
             </div>
-            <h1 className="text-2xl font-black tracking-wider text-slate-900">BHUMITI</h1>
-            <p className="text-xs uppercase tracking-widest text-emerald-700 font-bold">Land Intelligence OS Portal</p>
+            <div>
+              <span className="text-sm font-black tracking-widest text-white">BHUMITI OS</span>
+              <p className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">Spatial Intelligence Platform</p>
+            </div>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Officer Email</label>
-              <div className="relative">
-                <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input 
-                  type="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"
-                />
+          {/* Bottom Interactive Feature Cards showcasing project themes */}
+          <div className="relative z-10 space-y-4 max-w-xl">
+            <div className="inline-block px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-[11px] font-bold text-emerald-300 uppercase tracking-widest backdrop-blur-md">
+              Ecosystem & Urban Dynamics Monitor
+            </div>
+            <h2 className="text-3xl font-black text-white leading-tight">
+              Tracking Land Use Overuse, Canopy Loss, & Hydrological Stress.
+            </h2>
+            <div className="grid grid-cols-3 gap-3 pt-2">
+              <div className="bg-emerald-950/80 backdrop-blur-md border border-emerald-700/40 p-4 rounded-2xl shadow-lg space-y-1">
+                <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                  <Trees className="w-4 h-4" /> Forest
+                </div>
+                <p className="text-[11px] text-slate-300">Canopy preservation & green cover tracking.</p>
+              </div>
+              <div className="bg-rose-950/80 backdrop-blur-md border border-rose-700/40 p-4 rounded-2xl shadow-lg space-y-1">
+                <div className="flex items-center gap-2 text-rose-400 text-xs font-bold uppercase tracking-wider">
+                  <Building2 className="w-4 h-4" /> Urban
+                </div>
+                <p className="text-[11px] text-slate-300">Unchecked expansion & built-up density limits.</p>
+              </div>
+              <div className="bg-blue-950/80 backdrop-blur-md border border-blue-700/40 p-4 rounded-2xl shadow-lg space-y-1">
+                <div className="flex items-center gap-2 text-blue-400 text-xs font-bold uppercase tracking-wider">
+                  <Waves className="w-4 h-4" /> Water
+                </div>
+                <p className="text-[11px] text-slate-300">Hydrological basin flow & groundwater stress.</p>
               </div>
             </div>
+          </div>
+        </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Security Password</label>
-              <div className="relative">
-                <KeyRound className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input 
-                  type="password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"
-                />
-              </div>
+        {/* Right Side: Secure Login Form */}
+        <div className="w-full lg:w-5/12 flex items-center justify-center p-8 bg-slate-900/90 relative z-10">
+          <div className="w-full max-w-md space-y-6">
+            <div className="space-y-2">
+              <h1 className="text-2xl font-black tracking-wider text-white">Officer Portal</h1>
+              <p className="text-xs text-slate-400 font-medium">Authenticate to access municipal spatial zoning logs and AI simulation engines.</p>
             </div>
 
-            <button 
-              type="submit" 
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider py-3 rounded-xl transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 mt-2"
-            >
-              <Lock className="w-4 h-4" /> Authenticate OS
-            </button>
-          </form>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">Officer Email</label>
+                <div className="relative">
+                  <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input 
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"
+                  />
+                </div>
+              </div>
 
-          <p className="text-[10px] text-center text-slate-500 font-medium">
-            Authorized municipal personnel & hackathon evaluators only. Secure ArcGIS Node 14.2.
-          </p>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">Security Password</label>
+                <div className="relative">
+                  <KeyRound className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input 
+                    type="password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"
+                  />
+                </div>
+              </div>
+
+              <button 
+                type="submit" 
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-wider py-3.5 rounded-xl transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 mt-2"
+              >
+                <Lock className="w-4 h-4" /> Authenticate OS
+              </button>
+            </form>
+
+            <p className="text-[10px] text-center text-slate-500 font-medium">
+              Authorized municipal personnel & hackathon evaluators only. Secure ArcGIS Node 14.2.
+            </p>
+          </div>
         </div>
       </div>
     );

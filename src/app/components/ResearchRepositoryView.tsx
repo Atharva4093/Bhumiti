@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, FileText, Download, BookOpen, ShieldCheck, Filter, ExternalLink, PlusCircle } from "lucide-react";
+import { Search, FileText, Download, BookOpen, ShieldCheck, ExternalLink, PlusCircle } from "lucide-react";
 
 interface DocumentItem {
   id: string;
@@ -261,7 +261,7 @@ export default function ResearchRepositoryView() {
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Category</label>
                   <select
                     value={newCategory}
-                    onChange={(e: any) => setNewCategory(e.target.value)}
+                    onChange={(e) => setNewCategory(e.target.value as "Policy Document" | "Research Paper" | "Case Study" | "Whitepaper")}
                     className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white"
                   >
                     <option value="Research Paper">Research Paper</option>

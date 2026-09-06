@@ -22,6 +22,10 @@ export interface LandParcelDS {
   color: string;
 }
 
+export interface AiResponseItem {
+  text: string;
+}
+
 export const PUNE_COORDS: [number, number] = [18.5204, 73.8567]; 
 
 export const LAND_DATABASE: Record<string, LandParcelDS> = {
@@ -42,10 +46,8 @@ export const LAND_DATABASE: Record<string, LandParcelDS> = {
       [[18.5100, 73.9220], [18.5130, 73.9300], [18.5050, 73.9350], [18.5010, 73.9250]]
     ],
     builtUpClusters: [
-      // Original center-left built-up cluster
       [[18.5000, 73.9280], [18.5050, 73.9480], [18.4880, 73.9480], [18.4880, 73.9280]],
       [[18.4850, 73.9220], [18.4880, 73.9350], [18.4780, 73.9350], [18.4780, 73.9220]],
-      // New built-up polygon added where circled on the right
       [[18.5020, 73.9420], [18.5060, 73.9480], [18.4940, 73.9480], [18.4940, 73.9420]]
     ],
     waterBodies: [
@@ -99,7 +101,7 @@ export const LAND_DATABASE: Record<string, LandParcelDS> = {
   }
 };
 
-export const AI_RESPONSES: Record<string, any> = {
+export const AI_RESPONSES: Record<string, AiResponseItem> = {
   "flood": { text: "Recent flood analytics highlight high vulnerability around restricted drainage zones due to elevated concrete density." },
   "agri": { text: "Agricultural conversion metrics show accelerated shift toward urban spaces over the last decade." }
 };

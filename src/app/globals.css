@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@media print {
+  body { background: white; color: black; }
+  .print-hide { display: none !important; }
+  .print-expand { grid-column: span 12 !important; height: auto !important; }
+}

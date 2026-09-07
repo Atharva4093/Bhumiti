@@ -67,6 +67,7 @@ export default function ResearchRepositoryView() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [documents, setDocuments] = useState<DocumentItem[]>(INITIAL_DOCUMENTS);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState<DocumentItem | null>(null);
 
   const [newTitle, setNewTitle] = useState("");
   const [newCategory, setNewCategory] = useState<"Policy Document" | "Research Paper" | "Case Study" | "Whitepaper">("Research Paper");
@@ -80,6 +81,18 @@ export default function ResearchRepositoryView() {
     const matchesCategory = selectedCategory === "All" || doc.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const handleDownloadPDF = (doc: DocumentItem) => {
+    const pdfLinks: Record<string, string> = {
+      "DOC-001": "https://www.niti.gov.in/sites/default/files/2026-04/Moving-Towards-Effective-City-Government-a-Framework-for-Million-Plus-Cities.pdf",
+      "DOC-002": "https://dolr.gov.in/en/documents/",
+      "DOC-003": "https://dolr.gov.in/en/documents/",
+      "DOC-004": "https://dolr.gov.in/en/documents/"
+    };
+
+    const targetUrl = pdfLinks[doc.id] || "https://dolr.gov.in/en/documents/";
+    window.open(targetUrl, "_blank");
+  };
 
   const handleUploadSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,7 +119,6 @@ export default function ResearchRepositoryView() {
 
   return (
     <div className="w-full h-full p-6 bg-slate-50 overflow-y-auto">
-      {/* Top Banner / Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div>
           <div className="flex items-center gap-2 text-blue-600 font-semibold text-sm mb-1">
@@ -120,14 +132,13 @@ export default function ResearchRepositoryView() {
         </div>
         <button
           onClick={() => setIsUploadModalOpen(true)}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition shadow-sm self-start md:self-auto"
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition shadow-sm self-start md:self-auto cursor-pointer"
         >
           <PlusCircle className="w-4 h-4" />
           <span>Contribute Publication</span>
         </button>
       </div>
 
-      {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Publications</p>
@@ -153,7 +164,6 @@ export default function ResearchRepositoryView() {
         </div>
       </div>
 
-      {/* Search and Filters */}
       <div className="flex flex-col lg:flex-row gap-4 mb-6 items-stretch lg:items-center justify-between">
         <div className="relative flex-1">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -171,7 +181,7 @@ export default function ResearchRepositoryView() {
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition shadow-sm ${
+              className={`px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition shadow-sm cursor-pointer ${
                 selectedCategory === cat
                   ? "bg-slate-900 text-white"
                   : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
@@ -183,7 +193,6 @@ export default function ResearchRepositoryView() {
         </div>
       </div>
 
-      {/* Document List */}
       <div className="grid grid-cols-1 gap-4">
         {filteredDocs.map((doc) => (
           <div key={doc.id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-slate-300 transition flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -203,7 +212,7 @@ export default function ResearchRepositoryView() {
                   <span className="text-xs text-slate-400">• {doc.date}</span>
                   <span className="text-xs text-slate-400">• {doc.fileSize}</span>
                 </div>
-                <h3 className="text-base font-semibold text-slate-900 hover:text-blue-600 cursor-pointer transition">
+                <h3 onClick={() => setSelectedDoc(doc)} className="text-base font-semibold text-slate-900 hover:text-blue-600 cursor-pointer transition">
                   {doc.title}
                 </h3>
                 <p className="text-sm text-slate-600 mt-1 line-clamp-2">
@@ -218,15 +227,15 @@ export default function ResearchRepositoryView() {
 
             <div className="flex items-center gap-2 self-end md:self-center flex-shrink-0">
               <button 
-                onClick={() => alert(`Downloading verified secure document: ${doc.title}`)}
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-medium transition"
+                onClick={() => handleDownloadPDF(doc)}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium transition cursor-pointer shadow-sm"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Download PDF</span>
               </button>
               <button 
-                onClick={() => alert(`Opening metadata audit trail for ${doc.id}`)}
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl text-xs font-medium transition"
+                onClick={() => setSelectedDoc(doc)}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl text-xs font-medium transition cursor-pointer"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span>View Details</span>
@@ -236,7 +245,32 @@ export default function ResearchRepositoryView() {
         ))}
       </div>
 
-      {/* Upload Modal */}
+      {selectedDoc && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-xl rounded-2xl shadow-xl border border-slate-200 p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex justify-between items-start">
+              <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                {selectedDoc.category} • {selectedDoc.id}
+              </span>
+              <button onClick={() => setSelectedDoc(null)} className="text-slate-400 hover:text-slate-700 text-sm font-bold cursor-pointer">✕</button>
+            </div>
+            <h2 className="text-lg font-bold text-slate-900">{selectedDoc.title}</h2>
+            <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-200">{selectedDoc.description}</p>
+            <div className="text-xs space-y-1 text-slate-500">
+              <p><strong>Author:</strong> {selectedDoc.author}</p>
+              <p><strong>Issuing Department:</strong> {selectedDoc.department}</p>
+              <p><strong>Published Date:</strong> {selectedDoc.date}</p>
+              <p><strong>Security Hash:</strong> <code className="text-[10px] font-mono text-emerald-600">SHA-256: 8f9b2c3d4e5f6a7b8c9d0e1f2a3b4c5d</code></p>
+            </div>
+            <div className="flex justify-end gap-3 pt-2">
+              <button onClick={() => handleDownloadPDF(selectedDoc)} className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-medium flex items-center gap-1.5 hover:bg-blue-700 cursor-pointer shadow-sm">
+                <Download className="w-3.5 h-3.5" /> Download PDF Document
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isUploadModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 p-6 animate-in fade-in zoom-in-95 duration-150">
@@ -299,13 +333,13 @@ export default function ResearchRepositoryView() {
                 <button
                   type="button"
                   onClick={() => setIsUploadModalOpen(false)}
-                  className="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-100 rounded-xl text-sm font-medium transition"
+                  className="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-100 rounded-xl text-sm font-medium transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition shadow-sm"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition shadow-sm cursor-pointer"
                 >
                   Submit for Verification
                 </button>

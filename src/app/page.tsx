@@ -34,7 +34,7 @@ export default function Dashboard() {
 
   const activeData = selectedZone ? LAND_DATABASE[selectedZone] : null;
 
-  const timelineStats = YEAR_TIMELINE[currentYear];
+  const timelineStats = YEAR_TIMELINE[currentYear] || { agri: 20, trees: 15, built: 55, water: 10 };
   const currentPieData = [
     { name: 'Agriculture', value: Math.max(10, timelineStats.agri - Math.floor(simulatedConversion / 2)), color: '#10B981' },
     { name: 'Forest / Trees', value: timelineStats.trees, color: '#059669' },
@@ -42,7 +42,7 @@ export default function Dashboard() {
     { name: 'Water Bodies', value: timelineStats.water, color: '#3B82F6' }
   ];
 
-  const healthScore = activeData ? Math.max(35, 92 - (currentYear - 2015) * 3 - simulatedConversion).toFixed(0) : 0;
+  const healthScore = activeData ? Math.max(35, 92 - (currentYear - 2015) * 3 - simulatedConversion).toFixed(0) : "0";
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +62,9 @@ export default function Dashboard() {
   const handleAiPrompt = (key: string, promptText: string) => {
     setChatMessages(prev => [...prev, { role: "user", text: promptText }]);
     setTimeout(() => {
-      setChatMessages(prev => [...prev, { role: "ai", text: AI_RESPONSES[key].text }]);
+      const responseItem = AI_RESPONSES[key];
+      const responseText = responseItem ? responseItem.text : "Analysis complete.";
+      setChatMessages(prev => [...prev, { role: "ai", text: responseText }]);
     }, 800);
   };
 

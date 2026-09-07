@@ -4,7 +4,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { 
   LayoutDashboard, Map as MapIcon, Bot, Cpu, History, Droplets, Calendar, 
-  ShieldCheck, XCircle, Activity, Sparkles, Search, Trees, Building2, Waves, Globe2, Lock, User, KeyRound, BookOpen
+  ShieldCheck, XCircle, Activity, Sparkles, Search, Trees, Building2, Waves, Globe2, Lock, User, KeyRound, BookOpen, Sprout
 } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from "recharts";
 import { LAND_DATABASE, AI_RESPONSES, YEAR_TIMELINE } from "./lib/mockData";
@@ -35,12 +35,25 @@ export default function Dashboard() {
   const activeData = selectedZone ? LAND_DATABASE[selectedZone] : null;
 
   const timelineStats = YEAR_TIMELINE[currentYear] || { agri: 20, trees: 15, built: 55, water: 10 };
+  
+  // Mathematically balanced components summing precisely to 100%
+  const rawAgri = Math.max(5, timelineStats.agri - Math.floor(simulatedConversion / 2));
+  const rawTrees = Math.max(5, timelineStats.trees - Math.floor(simulatedConversion / 4));
+  const rawWater = timelineStats.water;
+  const rawBuilt = Math.min(65, timelineStats.built + simulatedConversion);
+
+  const totalSum = rawAgri + rawTrees + rawWater + rawBuilt;
   const currentPieData = [
-    { name: 'Agriculture', value: Math.max(10, timelineStats.agri - Math.floor(simulatedConversion / 2)), color: '#10B981' },
-    { name: 'Forest / Trees', value: timelineStats.trees, color: '#059669' },
-    { name: 'Built-up Area', value: timelineStats.built + simulatedConversion, color: '#EF4444' },
-    { name: 'Water Bodies', value: timelineStats.water, color: '#3B82F6' }
+    { name: 'Agriculture', value: Number(((rawAgri / totalSum) * 100).toFixed(1)), color: '#10B981' },
+    { name: 'Forest / Trees', value: Number(((rawTrees / totalSum) * 100).toFixed(1)), color: '#059669' },
+    { name: 'Built-up Area', value: Number(((rawBuilt / totalSum) * 100).toFixed(1)), color: '#EF4444' },
+    { name: 'Water Bodies', value: Number(((rawWater / totalSum) * 100).toFixed(1)), color: '#3B82F6' }
   ];
+
+  const displayAgri = Math.round((rawAgri / totalSum) * 100);
+  const displayCanopy = Math.round((rawTrees / totalSum) * 100);
+  const displayBuilt = Math.round((rawBuilt / totalSum) * 100);
+  const displayWater = Math.round((rawWater / totalSum) * 100);
 
   const healthScore = activeData ? Math.max(35, 92 - (currentYear - 2015) * 3 - simulatedConversion).toFixed(0) : "0";
 
@@ -68,13 +81,9 @@ export default function Dashboard() {
     }, 800);
   };
 
-  // ---------------------------------------------------------------------------
-  // SECURE LOGIN SCREEN VIEW (Split Screen: Live Land Use Visual & Credentials)
-  // ---------------------------------------------------------------------------
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen w-full flex bg-slate-950 font-sans text-slate-100 overflow-hidden">
-        {/* Left Side: Dynamic Visual Showcase of Urbanization, Forest & Water Bodies */}
         <div className="hidden lg:flex lg:w-7/12 relative flex-col justify-between p-12 overflow-hidden border-r border-slate-800">
           <div 
             className="absolute inset-0 bg-cover bg-center filter brightness-90 contrast-105 scale-105"
@@ -82,7 +91,6 @@ export default function Dashboard() {
           />
           <div className="absolute inset-0 bg-gradient-to-tr from-slate-950 via-slate-950/60 to-emerald-950/40" />
 
-          {/* Top Brand Banner */}
           <div className="relative z-10 flex items-center gap-3">
             <div className="p-3 bg-emerald-600/90 backdrop-blur-md rounded-2xl shadow-xl border border-emerald-500/30 text-white">
               <Globe2 className="w-6 h-6" />
@@ -93,7 +101,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Bottom Interactive Feature Cards showcasing project themes */}
           <div className="relative z-10 space-y-4 max-w-xl">
             <div className="inline-block px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-[11px] font-bold text-emerald-300 uppercase tracking-widest backdrop-blur-md">
               Ecosystem & Urban Dynamics Monitor
@@ -124,7 +131,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Right Side: Secure Login Form */}
         <div className="w-full lg:w-5/12 flex items-center justify-center p-8 bg-slate-900/90 relative z-10">
           <div className="w-full max-w-md space-y-6">
             <div className="space-y-2">
@@ -178,9 +184,6 @@ export default function Dashboard() {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // MAIN DASHBOARD VIEW
-  // ---------------------------------------------------------------------------
   return (
     <div className="min-h-screen text-slate-800 font-sans flex overflow-hidden relative bg-slate-100 selection:bg-emerald-500 selection:text-white">
       
@@ -335,34 +338,44 @@ export default function Dashboard() {
             <div className="grid grid-cols-12 gap-6">
               <div className="col-span-8 flex flex-col gap-6">
                 
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3.5 shadow-sm relative overflow-hidden group hover:border-emerald-300 transition">
-                    <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100 text-emerald-600">
-                      <Trees className="w-5 h-5" />
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3 shadow-sm relative overflow-hidden group hover:border-emerald-300 transition">
+                    <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-100 text-emerald-600 shrink-0">
+                      <Sprout className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase tracking-widest text-slate-400 font-extrabold">Forest & Trees</p>
-                      <p className="text-base font-black text-slate-900 mt-0.5">{timelineStats.trees}% <span className="text-[10px] text-emerald-600 font-bold">Canopy</span></p>
+                      <p className="text-[9px] uppercase tracking-widest text-slate-400 font-extrabold">Agriculture</p>
+                      <p className="text-sm font-black text-slate-900 mt-0.5">{displayAgri}% <span className="text-[9px] text-emerald-600 font-bold">Farmland</span></p>
                     </div>
                   </div>
 
-                  <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3.5 shadow-sm relative overflow-hidden group hover:border-rose-300 transition">
-                    <div className="p-3 bg-rose-50 rounded-xl border border-rose-100 text-rose-600">
-                      <Building2 className="w-5 h-5" />
+                  <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3 shadow-sm relative overflow-hidden group hover:border-emerald-300 transition">
+                    <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-100 text-emerald-600 shrink-0">
+                      <Trees className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase tracking-widest text-slate-400 font-extrabold">Built Structures</p>
-                      <p className="text-base font-black text-slate-900 mt-0.5">{timelineStats.built + simulatedConversion}% <span className="text-[10px] text-rose-600 font-bold">Density</span></p>
+                      <p className="text-[9px] uppercase tracking-widest text-slate-400 font-extrabold">Forest & Trees</p>
+                      <p className="text-sm font-black text-slate-900 mt-0.5">{displayCanopy}% <span className="text-[9px] text-emerald-600 font-bold">Canopy</span></p>
                     </div>
                   </div>
 
-                  <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3.5 shadow-sm relative overflow-hidden group hover:border-blue-300 transition">
-                    <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 text-blue-600">
-                      <Waves className="w-5 h-5" />
+                  <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3 shadow-sm relative overflow-hidden group hover:border-rose-300 transition">
+                    <div className="p-2.5 bg-rose-50 rounded-xl border border-rose-100 text-rose-600 shrink-0">
+                      <Building2 className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase tracking-widest text-slate-400 font-extrabold">Water Resources</p>
-                      <p className="text-base font-black text-slate-900 mt-0.5">{timelineStats.water}% <span className="text-[10px] text-blue-600 font-bold">Flow</span></p>
+                      <p className="text-[9px] uppercase tracking-widest text-slate-400 font-extrabold">Built Structures</p>
+                      <p className="text-sm font-black text-slate-900 mt-0.5">{displayBuilt}% <span className="text-[9px] text-rose-600 font-bold">Density</span></p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3 shadow-sm relative overflow-hidden group hover:border-blue-300 transition">
+                    <div className="p-2.5 bg-blue-50 rounded-xl border border-blue-100 text-blue-600 shrink-0">
+                      <Waves className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-[9px] uppercase tracking-widest text-slate-400 font-extrabold">Water Resources</p>
+                      <p className="text-sm font-black text-slate-900 mt-0.5">{displayWater}% <span className="text-[9px] text-blue-600 font-bold">Flow</span></p>
                     </div>
                   </div>
                 </div>

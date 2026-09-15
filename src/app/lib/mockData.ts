@@ -22,10 +22,6 @@ export interface LandParcelDS {
   color: string;
 }
 
-export interface AiResponseItem {
-  text: string;
-}
-
 export const PUNE_COORDS: [number, number] = [18.5204, 73.8567]; 
 
 export const LAND_DATABASE: Record<string, LandParcelDS> = {
@@ -99,11 +95,6 @@ export const LAND_DATABASE: Record<string, LandParcelDS> = {
     ],
     color: "#10B981"
   }
-};
-
-export const AI_RESPONSES: Record<string, AiResponseItem> = {
-  "flood": { text: "Recent flood analytics highlight high vulnerability around restricted drainage zones due to elevated concrete density." },
-  "agri": { text: "Agricultural conversion metrics show accelerated shift toward urban spaces over the last decade." }
 };
 
 export const YEAR_TIMELINE: Record<number, { agri: number; trees: number; built: number; water: number }> = {

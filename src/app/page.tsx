@@ -32,7 +32,7 @@ export default function Dashboard() {
   const [activeLayer, setActiveLayer] = useState<"satellite" | "thermal" | "moisture">("satellite");
   const [showParcelCard, setShowParcelCard] = useState(true);
 
-  // Policy Simulator States (Dynamic calculation per policy selection)
+  // Policy Simulator States
   const [simStep, setSimStep] = useState<number>(1);
   const [selectedState, setSelectedState] = useState("Maharashtra");
   const [selectedDistrict, setSelectedDistrict] = useState("Pune");
@@ -68,7 +68,6 @@ export default function Dashboard() {
 
   const timelineStats = YEAR_TIMELINE[currentYear] || { agri: 20, trees: 15, built: 55, water: 10 };
   
-  // Dynamic calculation based on selected policy type and protected area slider
   const getPolicyMultiplier = () => {
     if (selectedPolicyType.includes("Agricultural")) return 1.2;
     if (selectedPolicyType.includes("Urban Growth")) return 0.9;
@@ -80,14 +79,6 @@ export default function Dashboard() {
   const dynamicBuilt = Math.max(10, Math.round(35 - (protectedAreaPct * 0.35)));
   const dynamicCanopy = Math.min(30, Math.round(8 + (bufferDistance / 200)));
   const dynamicWater = Math.min(20, Math.round(7 + (bufferDistance / 300)));
-
-  const totalSimSum = dynamicAgri + dynamicCanopy + dynamicBuilt + dynamicWater;
-  const simulatedPieData = [
-    { name: 'Agriculture', value: Number(((dynamicAgri / totalSimSum) * 100).toFixed(1)), color: '#10B981' },
-    { name: 'Forest / Trees', value: Number(((dynamicCanopy / totalSimSum) * 100).toFixed(1)), color: '#059669' },
-    { name: 'Built-up Area', value: Number(((dynamicBuilt / totalSimSum) * 100).toFixed(1)), color: '#EF4444' },
-    { name: 'Water Bodies', value: Number(((dynamicWater / totalSimSum) * 100).toFixed(1)), color: '#3B82F6' }
-  ];
 
   const rawAgri = Math.max(5, timelineStats.agri - Math.floor(simulatedConversion / 2));
   const rawTrees = Math.max(5, timelineStats.trees - Math.floor(simulatedConversion / 4));
@@ -133,7 +124,6 @@ export default function Dashboard() {
     }, 1800);
   };
 
-  // Bhumi Assistant Query Handler
   const handleAiSubmit = (e: React.FormEvent, customQuery?: string) => {
     if (e) e.preventDefault();
     const queryText = customQuery || chatInput;
@@ -188,120 +178,89 @@ export default function Dashboard() {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen w-full flex bg-[#0A0F0D] font-sans text-slate-100 overflow-hidden">
-        <div className="hidden lg:flex lg:w-7/12 relative flex-col justify-between p-12 overflow-hidden border-r border-slate-800">
-          <div 
-            className="absolute inset-0 bg-cover bg-center filter brightness-90 contrast-105 scale-105"
-            style={{ backgroundImage: `url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2500&auto=format&fit=crop')` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-tr from-[#0A0F0D] via-[#0A0F0D]/70 to-emerald-950/50" />
+      <div className="min-h-screen w-full relative flex items-center justify-center p-6 font-sans text-slate-100 overflow-hidden">
+        {/* Fullscreen HD Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center filter brightness-90 contrast-105 scale-105"
+          style={{ backgroundImage: `url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2500&auto=format&fit=crop')` }}
+        />
+        <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-[2px]" />
 
-          <div className="relative z-10 flex items-center gap-3">
-            <div className="p-3 bg-emerald-700 rounded-2xl shadow-xl text-white">
-              <Compass className="w-6 h-6" />
-            </div>
-            <div>
-              <span className="text-sm font-black tracking-widest text-white">BHUMITI OS</span>
-              <p className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">National Land Intelligence Platform</p>
-            </div>
+        {/* Top-Left Branding Header */}
+        <div className="absolute top-8 left-8 z-20 flex items-center gap-3">
+          <div className="p-3 bg-emerald-700 rounded-2xl shadow-xl text-white">
+            <Compass className="w-6 h-6" />
           </div>
-
-          <div className="relative z-10 space-y-4 max-w-xl">
-            <div className="inline-block px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-[11px] font-bold text-emerald-300 uppercase tracking-widest backdrop-blur-md">
-              Ministry of Rural Development, Govt. of India
-            </div>
-            <h2 className="text-3xl font-black text-white leading-tight">
-              Precision Geospatial Monitoring for Peri-Urban Corridors.
-            </h2>
-            <div className="grid grid-cols-3 gap-3 pt-2">
-              <div className="bg-slate-900/80 backdrop-blur-md border border-slate-700/60 p-4 rounded-2xl shadow-lg space-y-1">
-                <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase">
-                  <Trees className="w-4 h-4" /> Forest
-                </div>
-                <p className="text-[11px] text-slate-300">Canopy preservation & green cover tracking.</p>
-              </div>
-              <div className="bg-slate-900/80 backdrop-blur-md border border-slate-700/60 p-4 rounded-2xl shadow-lg space-y-1">
-                <div className="flex items-center gap-2 text-rose-400 text-xs font-bold uppercase">
-                  <Building2 className="w-4 h-4" /> Urban
-                </div>
-                <p className="text-[11px] text-slate-300">Unchecked expansion & built-up density limits.</p>
-              </div>
-              <div className="bg-slate-900/80 backdrop-blur-md border border-slate-700/60 p-4 rounded-2xl shadow-lg space-y-1">
-                <div className="flex items-center gap-2 text-blue-400 text-xs font-bold uppercase">
-                  <Waves className="w-4 h-4" /> Water
-                </div>
-                <p className="text-[11px] text-slate-300">Hydrological basin flow & groundwater stress.</p>
-              </div>
-            </div>
+          <div>
+            <span className="text-sm font-black tracking-widest text-white">BHUMITI OS</span>
+            <p className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">National Land Intelligence Platform</p>
           </div>
         </div>
 
-        <div className="w-full lg:w-5/12 flex items-center justify-center p-8 bg-[#111814] relative z-10">
-          <div className="w-full max-w-md space-y-6">
-            <div className="space-y-2">
-              <h1 className="text-2xl font-black tracking-wider text-white">Officer Portal</h1>
-              <p className="text-xs text-slate-400 font-medium">Authenticate to access municipal spatial zoning logs and AI simulation engines.</p>
+        {/* Centered Frosted Glass Authentication Card */}
+        <div className="w-full max-w-md bg-slate-900/85 backdrop-blur-xl border border-slate-700/80 p-8 lg:p-10 rounded-3xl shadow-2xl relative z-20 space-y-6">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-black tracking-wider text-white">Officer Portal</h1>
+            <p className="text-xs text-slate-400 font-medium">Authenticate to access municipal spatial zoning logs and AI simulation engines.</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">Officer Email</label>
+              <input 
+                type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 px-4 text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"
+              />
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">Officer Email</label>
-                <input 
-                  type="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"
-                />
-              </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">Security Password</label>
+              <input 
+                type="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 px-4 text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"
+              />
+            </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">Security Password</label>
-                <input 
-                  type="password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"
-                />
-              </div>
-
-              <button 
-                type="submit" 
-                className="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider py-3.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2 mt-2 cursor-pointer"
-              >
-                Authenticate Platform
-              </button>
-            </form>
-          </div>
+            <button 
+              type="submit" 
+              className="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider py-3.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2 mt-2 cursor-pointer"
+            >
+              Authenticate Platform
+            </button>
+          </form>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen text-slate-800 font-sans flex flex-col overflow-hidden relative bg-[#FDFBF7]">
+    <div className="min-h-screen text-slate-800 font-sans flex flex-col overflow-hidden relative bg-[#F7F5F0]">
       
-      {/* Top Government Header */}
-      <header className="h-14 px-6 flex items-center justify-between border-b border-amber-900/10 bg-[#F5EFEB] shrink-0 z-30">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-emerald-700 rounded-xl text-white shadow-md">
-            <Compass className="w-4 h-4" />
+      {/* Top Government Header with Glassmorphism */}
+      <header className="h-16 px-8 flex items-center justify-between border-b border-emerald-950/10 bg-[#FAF8F5]/90 backdrop-blur-md shrink-0 z-30 shadow-xs">
+        <div className="flex items-center gap-3.5">
+          <div className="p-2.5 bg-emerald-700 rounded-2xl text-white shadow-md">
+            <Compass className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-sm font-black tracking-wider text-slate-900">BHUMITI</h1>
-              <span className="text-[9px] bg-amber-200/60 text-amber-900 font-bold px-1.5 py-0.5 rounded">SPO2025</span>
+              <h1 className="text-sm font-black tracking-widest text-slate-900">BHUMITI</h1>
             </div>
-            <p className="text-[9px] uppercase tracking-widest text-emerald-800 font-bold">National Land Intelligence Platform</p>
+            <p className="text-[9px] uppercase tracking-widest text-emerald-800 font-extrabold">National Land Intelligence Platform</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1 bg-amber-100/50 border border-amber-900/10 rounded-full text-[11px] font-bold text-amber-900">
-            <span>Ministry of Rural Development</span>
+        <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-2 px-4 py-1.5 bg-white border border-emerald-950/10 rounded-full text-xs font-bold text-emerald-900 shadow-2xs">
+            <span>Ministry of Rural Development, Govt. of India</span>
           </div>
-          <div className="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs shadow">
+          <div className="w-9 h-9 rounded-full bg-emerald-800 text-white flex items-center justify-center font-black text-xs shadow-md border-2 border-white">
             GOI
           </div>
         </div>
@@ -310,10 +269,10 @@ export default function Dashboard() {
       {/* Main Workspace Layout */}
       <div className="flex-1 flex relative overflow-hidden">
         
-        {/* Left Mini Sidebar */}
-        <aside className="w-68 bg-[#F5EFEB] border-r border-amber-900/10 flex flex-col py-6 gap-2 shrink-0 z-20 shadow-sm">
-          <div className="px-6 mb-2">
-            <span className="text-[10px] uppercase tracking-widest font-extrabold text-amber-900/60">Navigation Console</span>
+        {/* Left Mini Sidebar with Sleek Cards */}
+        <aside className="w-72 bg-[#FAF8F5] border-r border-emerald-950/10 flex flex-col py-8 gap-3 shrink-0 z-20 shadow-xs">
+          <div className="px-6 mb-1">
+            <span className="text-[10px] uppercase tracking-widest font-black text-slate-400">Navigation Console</span>
           </div>
           {[
             { name: "Overview", icon: LayoutDashboard }, 
@@ -326,10 +285,10 @@ export default function Dashboard() {
             <button 
               key={item.name} 
               onClick={() => setActiveNav(item.name)} 
-              className={`w-full flex items-center gap-3 px-6 py-3.5 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${ 
+              className={`w-full flex items-center gap-3.5 px-6 py-3.5 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${ 
                 activeNav === item.name 
-                  ? "bg-emerald-700 text-white shadow-md shadow-emerald-700/20 font-black border-l-4 border-emerald-900" 
-                  : "text-slate-600 hover:bg-amber-100/50 hover:text-slate-900"
+                  ? "bg-emerald-700 text-white shadow-md shadow-emerald-700/20 font-black border-l-4 border-emerald-950 translate-x-1 rounded-r-xl" 
+                  : "text-slate-600 hover:bg-emerald-900/5 hover:text-slate-900"
               }`}
             >
               <item.icon className="w-4 h-4" />
@@ -337,62 +296,86 @@ export default function Dashboard() {
             </button>
           ))}
 
-          <div className="mt-auto p-4 m-4 rounded-xl bg-white/60 border border-amber-900/10 space-y-2 shadow-inner">
-            <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+          <div className="mt-auto p-4 m-4 rounded-2xl bg-white border border-emerald-950/10 space-y-2.5 shadow-2xs">
+            <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-slate-500 font-black">
               <span>Biosphere Index</span>
               <span className="text-emerald-700 font-black">OPTIMAL</span>
             </div>
-            <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden p-0.5">
-              <div className="bg-emerald-600 h-full rounded-full w-[84%]" />
+            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden p-0.5">
+              <div className="bg-emerald-600 h-full rounded-full w-[84%] transition-all duration-500" />
             </div>
           </div>
         </aside>
 
         {/* Central Content Area */}
-        <div className="flex-1 flex flex-col overflow-y-auto p-6 gap-6 bg-[#FDFBF7]">
+        <div className="flex-1 flex flex-col overflow-y-auto p-8 gap-6 bg-[#F7F5F0]">
           
           {activeNav === "Research Repository" ? (
-            <div className="flex-1 flex flex-col bg-white border border-amber-900/10 rounded-2xl shadow-sm overflow-hidden p-6">
+            <div className="flex-1 flex flex-col bg-white border border-emerald-950/10 rounded-3xl shadow-xs overflow-hidden p-8">
               <ResearchRepositoryView />
+            </div>
+          ) : activeNav === "Explore Map" ? (
+            /* FULLSCREEN IMMERSIVE GIS MAP COMMAND CENTER */
+            <div className="flex-1 flex flex-col bg-white border border-emerald-950/10 rounded-3xl shadow-xs overflow-hidden p-6 relative">
+              <div className="flex justify-between items-center mb-4 px-1">
+                <div>
+                  <h2 className="text-base font-black text-slate-900 tracking-wide">National Geospatial GIS Command Center</h2>
+                  <p className="text-xs text-slate-500 font-medium">Full-scale vector parcel inspection, boundary telemetry, and live layer toggling.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] bg-emerald-50 text-emerald-800 font-black px-3 py-1 rounded-full border border-emerald-200 shadow-2xs">ArcGIS Node 14 Connected</span>
+                </div>
+              </div>
+              <div className="flex-1 rounded-2xl overflow-hidden border border-emerald-950/10 relative shadow-inner">
+                <MapVisualizer selectedZone={selectedZone} year={currentYear} layerMode={activeLayer} />
+                
+                <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+                  <div className="bg-white/95 backdrop-blur-md border border-emerald-950/10 rounded-xl p-1 flex items-center gap-1 text-xs font-bold text-slate-700 shadow-lg">
+                    <button onClick={() => setActiveLayer("satellite")} className={`px-3.5 py-1.5 rounded-lg transition cursor-pointer ${activeLayer === 'satellite' ? 'bg-emerald-700 text-white shadow' : 'hover:bg-slate-100'}`}>Satellite</button>
+                    <button onClick={() => setActiveLayer("thermal")} className={`px-3.5 py-1.5 rounded-lg transition cursor-pointer ${activeLayer === 'thermal' ? 'bg-amber-600 text-white shadow' : 'hover:bg-slate-100'}`}>Thermal</button>
+                    <button onClick={() => setActiveLayer("moisture")} className={`px-3.5 py-1.5 rounded-lg transition cursor-pointer ${activeLayer === 'moisture' ? 'bg-blue-600 text-white shadow' : 'hover:bg-slate-100'}`}>Terrain</button>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : activeNav === "BHUMI ASSISTENT" ? (
             <div className="flex-1 flex flex-col gap-6">
               <div className="grid grid-cols-12 gap-6 flex-1">
-                <div className="col-span-9 bg-white border border-amber-900/10 rounded-2xl shadow-sm flex flex-col overflow-hidden p-6 gap-6">
-                  <div className="flex items-center gap-3.5 border-b border-amber-900/10 pb-4">
-                    <div className="p-3 bg-emerald-700 text-white rounded-2xl shadow-md">
+                <div className="col-span-9 bg-white border border-emerald-950/10 rounded-3xl shadow-xs flex flex-col overflow-hidden p-8 gap-6">
+                  <div className="flex items-center gap-4 border-b border-emerald-950/10 pb-5">
+                    <div className="p-3.5 bg-emerald-700 text-white rounded-2xl shadow-md">
                       <Bot className="w-6 h-6" />
                     </div>
                     <div>
                       <h2 className="text-base font-black text-slate-900 tracking-wide">Bhumi Assistent</h2>
-                      <p className="text-xs text-slate-500 font-medium">Natural language geospatial & zoning exploration</p>
+                      <p className="text-xs text-slate-500 font-medium">Natural language geospatial & zoning exploration powered by live spatial data</p>
                     </div>
                   </div>
 
-                  <div className="flex-1 space-y-4 overflow-y-auto min-h-[320px] max-h-[380px] pr-2">
+                  <div className="flex-1 space-y-4 overflow-y-auto min-h-[340px] max-h-[400px] pr-2">
                     {chatMessages.map((msg, idx) => (
                       <div key={idx} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                        <div className={`p-4 rounded-2xl text-xs leading-relaxed max-w-[85%] shadow-sm ${
+                        <div className={`p-4.5 rounded-2xl text-xs leading-relaxed max-w-[85%] shadow-xs ${
                           msg.role === 'user' 
                             ? 'bg-emerald-700 text-white font-medium rounded-br-none' 
-                            : 'bg-[#F5EFEB] text-slate-900 border border-amber-900/10 rounded-bl-none font-medium'
+                            : 'bg-[#FAF8F5] text-slate-900 border border-emerald-950/10 rounded-bl-none font-medium'
                         }`}>
                           {msg.text}
                         </div>
-                        <span className="text-[10px] text-slate-400 mt-1 px-1 font-mono">{msg.timestamp}</span>
+                        <span className="text-[10px] text-slate-400 mt-1.5 px-1 font-mono">{msg.timestamp}</span>
                       </div>
                     ))}
 
                     {isThinking && (
-                      <div className="flex items-center gap-3 p-4 bg-[#F5EFEB] border border-amber-900/10 rounded-2xl w-2/3 text-xs text-slate-600 animate-pulse shadow-sm">
+                      <div className="flex items-center gap-3 p-4 bg-[#FAF8F5] border border-emerald-950/10 rounded-2xl w-2/3 text-xs text-slate-600 animate-pulse shadow-xs">
                         <Bot className="w-4 h-4 text-emerald-700 animate-spin" /> Analyzing cadastral telemetry and land logs...
                       </div>
                     )}
                   </div>
 
                   <div className="space-y-3">
-                    <p className="text-[11px] font-extrabold uppercase tracking-widest text-slate-500">Try these example queries:</p>
-                    <div className="grid grid-cols-2 gap-3">
+                    <p className="text-[11px] font-black uppercase tracking-widest text-slate-400">Suggested Queries:</p>
+                    <div className="grid grid-cols-2 gap-3.5">
                       {[
                         { q: "Assess peri-urban agricultural conversion in Hadapsar", tag: "zoning" },
                         { q: "Check groundwater depletion and flood risks in Pune corridor", tag: "hydrology" },
@@ -402,11 +385,11 @@ export default function Dashboard() {
                         <div 
                           key={idx}
                           onClick={() => handleAiSubmit(undefined as any, item.q)}
-                          className="p-3.5 bg-[#FDFBF7] hover:bg-amber-100/50 border border-amber-900/10 rounded-xl cursor-pointer transition flex flex-col justify-between space-y-2 shadow-xs group"
+                          className="p-4 bg-[#FAF8F5] hover:bg-emerald-50/50 border border-emerald-950/10 rounded-2xl cursor-pointer transition flex flex-col justify-between space-y-2.5 shadow-2xs group"
                         >
-                          <p className="text-xs font-bold text-slate-800 group-hover:text-emerald-800">{item.q}</p>
+                          <p className="text-xs font-bold text-slate-800 group-hover:text-emerald-900">{item.q}</p>
                           <div className="flex items-center">
-                            <span className="text-[9px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">{item.tag}</span>
+                            <span className="text-[9px] bg-emerald-100 text-emerald-900 font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">{item.tag}</span>
                           </div>
                         </div>
                       ))}
@@ -419,11 +402,11 @@ export default function Dashboard() {
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
                       placeholder="Ask about cadastral surveys, zoning rules, or land conversion..." 
-                      className="w-full bg-[#F5EFEB] border border-amber-900/20 rounded-xl py-3.5 pl-4 pr-14 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-700 shadow-inner"
+                      className="w-full bg-[#FAF8F5] border border-emerald-950/15 rounded-2xl py-4 pl-5 pr-16 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-700 shadow-inner"
                     />
                     <button 
                       type="submit" 
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg transition shadow cursor-pointer flex items-center justify-center"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl transition shadow cursor-pointer flex items-center justify-center"
                     >
                       <Send className="w-4 h-4" />
                     </button>
@@ -431,30 +414,30 @@ export default function Dashboard() {
                 </div>
 
                 <div className="col-span-3 flex flex-col gap-6">
-                  <div className="bg-white border border-amber-900/10 rounded-2xl p-5 shadow-sm space-y-3">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2 border-b border-amber-900/10 pb-2">
+                  <div className="bg-white border border-emerald-950/10 rounded-3xl p-6 shadow-xs space-y-3.5">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2 border-b border-emerald-950/10 pb-3">
                       <BarChart3 className="w-4 h-4 text-emerald-700" /> Session Stats
                     </h3>
-                    <div className="space-y-2 text-xs font-semibold">
+                    <div className="space-y-2.5 text-xs font-semibold">
                       <div className="flex justify-between"><span className="text-slate-500">Total Queries</span><span className="font-black text-slate-900">{totalQueries}</span></div>
                       <div className="flex justify-between"><span className="text-slate-500">Data Points Analyzed</span><span className="font-black text-slate-900">{dataPointsAnalyzed}</span></div>
                       <div className="flex justify-between"><span className="text-slate-500">Active Zones</span><span className="font-black text-emerald-700">14 Sectors</span></div>
                     </div>
                   </div>
 
-                  <div className="bg-white border border-amber-900/10 rounded-2xl p-5 shadow-sm space-y-3">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2 border-b border-amber-900/10 pb-2">
+                  <div className="bg-white border border-emerald-950/10 rounded-3xl p-6 shadow-xs space-y-3.5">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2 border-b border-emerald-950/10 pb-3">
                       <History className="w-4 h-4 text-emerald-700" /> Recent Queries
                     </h3>
-                    <div className="space-y-2.5">
+                    <div className="space-y-3">
                       {[
                         { q: "Assess peri-urban agricult...", tag: "zoning", res: "94% confidence • Hadapsar" },
                         { q: "Check groundwater depleti...", tag: "hydrology", res: "2.4m delta • Pune" }
                       ].map((rq, i) => (
-                        <div key={i} className="p-2.5 bg-[#F5EFEB] border border-amber-900/10 rounded-xl space-y-1 text-[11px]">
+                        <div key={i} className="p-3 bg-[#FAF8F5] border border-emerald-950/10 rounded-2xl space-y-1.5 text-[11px]">
                           <div className="flex justify-between items-center">
                             <span className="font-bold text-slate-800 truncate max-w-[120px]">{rq.q}</span>
-                            <span className="text-[8px] bg-emerald-100 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded">{rq.tag}</span>
+                            <span className="text-[8px] bg-emerald-100 text-emerald-900 font-extrabold px-2 py-0.5 rounded-full">{rq.tag}</span>
                           </div>
                           <p className="text-[9px] text-slate-500">{rq.res}</p>
                         </div>
@@ -462,15 +445,15 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <div className="bg-white border border-amber-900/10 rounded-2xl p-5 shadow-sm space-y-3">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2 border-b border-amber-900/10 pb-2">
+                  <div className="bg-white border border-emerald-950/10 rounded-3xl p-6 shadow-xs space-y-3.5">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2 border-b border-emerald-950/10 pb-3">
                       <Sparkles className="w-4 h-4 text-emerald-700" /> Quick Actions
                     </h3>
-                    <div className="space-y-2">
-                      <button onClick={() => setActiveNav("Overview")} className="w-full text-left px-3 py-2 bg-[#F5EFEB] hover:bg-emerald-50 text-xs font-bold text-slate-800 rounded-xl transition border border-amber-900/10 flex items-center gap-2 cursor-pointer">
+                    <div className="space-y-2.5">
+                      <button onClick={() => setActiveNav("Overview")} className="w-full text-left px-3.5 py-2.5 bg-[#FAF8F5] hover:bg-emerald-50 text-xs font-bold text-slate-800 rounded-xl transition border border-emerald-950/10 flex items-center gap-2.5 cursor-pointer shadow-2xs">
                         <LayoutDashboard className="w-3.5 h-3.5 text-emerald-700" /> View Dashboard
                       </button>
-                      <button onClick={() => setActiveNav("Explore Map")} className="w-full text-left px-3 py-2 bg-[#F5EFEB] hover:bg-emerald-50 text-xs font-bold text-slate-800 rounded-xl transition border border-amber-900/10 flex items-center gap-2 cursor-pointer">
+                      <button onClick={() => setActiveNav("Explore Map")} className="w-full text-left px-3.5 py-2.5 bg-[#FAF8F5] hover:bg-emerald-50 text-xs font-bold text-slate-800 rounded-xl transition border border-emerald-950/10 flex items-center gap-2.5 cursor-pointer shadow-2xs">
                         <Database className="w-3.5 h-3.5 text-emerald-700" /> Browse Data
                       </button>
                     </div>
@@ -479,53 +462,53 @@ export default function Dashboard() {
               </div>
             </div>
           ) : activeNav === "Blockchain Ledger" ? (
-            <div className="flex-1 flex flex-col bg-[#F5EFEB] border border-amber-900/10 rounded-2xl shadow-sm overflow-hidden p-8 space-y-6">
-              <div className="flex items-center justify-between border-b border-amber-900/10 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-emerald-700 text-white rounded-xl shadow">
+            <div className="flex-1 flex flex-col bg-white border border-emerald-950/10 rounded-3xl shadow-xs overflow-hidden p-8 space-y-6">
+              <div className="flex items-center justify-between border-b border-emerald-950/10 pb-5">
+                <div className="flex items-center gap-3.5">
+                  <div className="p-3 bg-emerald-700 text-white rounded-2xl shadow-md">
                     <Lock className="w-6 h-6" />
                   </div>
                   <div>
                     <h2 className="text-xl font-black text-slate-900 tracking-wide">Blockchain Data Integrity & Security Ledger</h2>
-                    <p className="text-xs text-slate-500">Tamper-evident digital notary for all municipal research, cadastral surveys, and policy records.</p>
+                    <p className="text-xs text-slate-500 font-medium">Tamper-evident digital notary for all municipal research, cadastral surveys, and policy records.</p>
                   </div>
                 </div>
-                <div className="flex bg-white border border-amber-900/10 rounded-xl p-1 shadow-inner">
-                  <button onClick={() => setBlockchainTab("explorer")} className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition ${blockchainTab === 'explorer' ? 'bg-emerald-700 text-white shadow' : 'text-slate-600 hover:bg-amber-100'}`}>Consortium Explorer</button>
-                  <button onClick={() => setBlockchainTab("verify")} className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition ${blockchainTab === 'verify' ? 'bg-emerald-700 text-white shadow' : 'text-slate-600 hover:bg-amber-100'}`}>Verify Document</button>
+                <div className="flex bg-[#FAF8F5] border border-emerald-950/10 rounded-2xl p-1.5 shadow-inner">
+                  <button onClick={() => setBlockchainTab("explorer")} className={`px-5 py-2 text-xs font-bold uppercase tracking-wider rounded-xl transition cursor-pointer ${blockchainTab === 'explorer' ? 'bg-emerald-700 text-white shadow-md' : 'text-slate-600 hover:bg-slate-200'}`}>Consortium Explorer</button>
+                  <button onClick={() => setBlockchainTab("verify")} className={`px-5 py-2 text-xs font-bold uppercase tracking-wider rounded-xl transition cursor-pointer ${blockchainTab === 'verify' ? 'bg-emerald-700 text-white shadow-md' : 'text-slate-600 hover:bg-slate-200'}`}>Verify Document</button>
                 </div>
               </div>
 
               {blockchainTab === "explorer" ? (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-4 gap-4">
-                    <div className="bg-white border border-amber-900/10 p-4 rounded-xl shadow-inner">
+                  <div className="grid grid-cols-4 gap-5">
+                    <div className="bg-[#FAF8F5] border border-emerald-950/10 p-5 rounded-2xl shadow-inner">
                       <p className="text-[10px] uppercase font-bold text-slate-500">Consensus Mechanism</p>
-                      <p className="text-sm font-black text-emerald-700 mt-1">Raft / IBFT 2.0</p>
+                      <p className="text-base font-black text-emerald-700 mt-1">Raft / IBFT 2.0</p>
                     </div>
-                    <div className="bg-white border border-amber-900/10 p-4 rounded-xl shadow-inner">
+                    <div className="bg-[#FAF8F5] border border-emerald-950/10 p-5 rounded-2xl shadow-inner">
                       <p className="text-[10px] uppercase font-bold text-slate-500">Active Validator Nodes</p>
-                      <p className="text-sm font-black text-slate-900 mt-1">14 Consortium Nodes</p>
+                      <p className="text-base font-black text-slate-900 mt-1">14 Consortium Nodes</p>
                     </div>
-                    <div className="bg-white border border-amber-900/10 p-4 rounded-xl shadow-inner">
+                    <div className="bg-[#FAF8F5] border border-emerald-950/10 p-5 rounded-2xl shadow-inner">
                       <p className="text-[10px] uppercase font-bold text-slate-500">Total Immutable Blocks</p>
-                      <p className="text-sm font-black text-slate-900 mt-1">#48,921</p>
+                      <p className="text-base font-black text-slate-900 mt-1">#48,921</p>
                     </div>
-                    <div className="bg-white border border-amber-900/10 p-4 rounded-xl shadow-inner">
+                    <div className="bg-[#FAF8F5] border border-emerald-950/10 p-5 rounded-2xl shadow-inner">
                       <p className="text-[10px] uppercase font-bold text-slate-500">Network Integrity Status</p>
-                      <p className="text-sm font-black text-emerald-600 mt-1 flex items-center gap-1"><ShieldCheck className="w-4 h-4" /> 100% Secure</p>
+                      <p className="text-base font-black text-emerald-600 mt-1 flex items-center gap-1.5"><ShieldCheck className="w-4 h-4" /> 100% Secure</p>
                     </div>
                   </div>
 
-                  <div className="bg-white border border-amber-900/10 rounded-xl p-6 space-y-4 shadow-inner">
+                  <div className="bg-[#FAF8F5] border border-emerald-950/10 rounded-2xl p-6 space-y-4 shadow-inner">
                     <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">Recent On-Chain Transactions & Hashing Logs</h3>
-                    <div className="space-y-3">
+                    <div className="space-y-3.5">
                       {[
                         { id: "#48921", doc: "Hadapsar Peri-Urban Cadastral Survey v2.4", hash: "e3b0c442...91b7852b", node: "Ministry of Rural Development Node 04", time: "2 mins ago" },
                         { id: "#48920", doc: "Pune Zoning & Groundwater Simulation Delta", hash: "8c6976e5...b52f1e69", node: "State Revenue Department Cell", time: "14 mins ago" },
                         { id: "#48919", doc: "Lohegaon Canopy Preservation Impact Report", hash: "2cf24dba...78fe7259", node: "Academic Think Tank Node 02", time: "42 mins ago" }
                       ].map((tx, idx) => (
-                        <div key={idx} className="p-4 bg-[#F5EFEB] border border-amber-900/10 rounded-xl flex items-center justify-between text-xs">
+                        <div key={idx} className="p-4 bg-white border border-emerald-950/10 rounded-2xl flex items-center justify-between text-xs shadow-2xs">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
                               <span className="font-black text-emerald-700">{tx.id}</span>
@@ -534,7 +517,7 @@ export default function Dashboard() {
                             <p className="text-[10px] text-slate-500 font-mono">SHA-256 Hash: {tx.hash}</p>
                           </div>
                           <div className="text-right space-y-1">
-                            <span className="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full text-[9px] font-bold uppercase tracking-wider">{tx.node}</span>
+                            <span className="px-3 py-1 bg-emerald-50 text-emerald-800 rounded-full text-[9px] font-black uppercase tracking-wider border border-emerald-200">{tx.node}</span>
                             <p className="text-[10px] text-slate-400">{tx.time}</p>
                           </div>
                         </div>
@@ -543,34 +526,34 @@ export default function Dashboard() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-white border border-amber-900/10 rounded-xl p-8 max-w-2xl mx-auto w-full space-y-6 shadow-inner">
+                <div className="bg-[#FAF8F5] border border-emerald-950/10 rounded-2xl p-8 max-w-2xl mx-auto w-full space-y-6 shadow-inner">
                   <div className="text-center space-y-2">
                     <h3 className="text-lg font-black text-slate-900">Document Authenticity Verification</h3>
                     <p className="text-xs text-slate-500">Upload or enter document hash/ID to verify file immutability against the decentralized ledger.</p>
                   </div>
 
                   <form onSubmit={handleDocumentVerify} className="space-y-4">
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Document Hash or ID</label>
                       <input 
                         type="text" 
                         value={verifyInput}
                         onChange={(e) => setVerifyInput(e.target.value)}
                         placeholder="Enter SHA-256 hash or Block ID (e.g. #48921)..." 
-                        className="w-full bg-[#F5EFEB] border border-amber-900/20 rounded-xl py-3 px-4 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-700"
+                        className="w-full bg-white border border-emerald-950/20 rounded-2xl py-3.5 px-4 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-700 shadow-2xs"
                       />
                     </div>
-                    <button type="submit" className="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs uppercase tracking-wider py-3 rounded-xl transition shadow cursor-pointer">
+                    <button type="submit" className="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs uppercase tracking-wider py-3.5 rounded-2xl transition shadow-md cursor-pointer">
                       Verify Cryptographic Integrity
                     </button>
                   </form>
 
                   {verifyResult.status === "verified" && (
-                    <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 text-xs">
+                    <div className="p-5 bg-emerald-50 border border-emerald-200 rounded-2xl space-y-2.5 text-xs shadow-2xs">
                       <div className="flex items-center gap-2 text-emerald-800 font-bold">
                         <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Verified: Matches On-Chain Record {verifyResult.details.blockId}
                       </div>
-                      <div className="grid grid-cols-2 gap-y-1 text-[11px] text-slate-600 pt-1">
+                      <div className="grid grid-cols-2 gap-y-1.5 text-[11px] text-slate-600 pt-1">
                         <span>Status:</span> <span className="font-bold text-emerald-700">{verifyResult.details.status}</span>
                         <span>Timestamp:</span> <span className="font-bold text-slate-800">{verifyResult.details.timestamp}</span>
                         <span>Validator Node:</span> <span className="font-bold text-slate-800">{verifyResult.details.author}</span>
@@ -580,7 +563,7 @@ export default function Dashboard() {
                   )}
 
                   {verifyResult.status === "tampered" && (
-                    <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl space-y-2 text-xs">
+                    <div className="p-5 bg-rose-50 border border-rose-200 rounded-2xl space-y-2 text-xs shadow-2xs">
                       <div className="flex items-center gap-2 text-rose-800 font-bold">
                         <ShieldAlert className="w-4 h-4 text-rose-600" /> Integrity Mismatch: File has been altered or does not exist on ledger.
                       </div>
@@ -591,22 +574,22 @@ export default function Dashboard() {
               )}
             </div>
           ) : activeNav === "Policy Simulator" ? (
-            <div className="bg-[#F5EFEB] border border-amber-900/10 rounded-2xl p-8 shadow-sm space-y-6 relative overflow-hidden">
+            <div className="bg-white border border-emerald-950/10 rounded-3xl p-8 shadow-xs space-y-6 relative overflow-hidden">
               
               {/* Header */}
-              <div className="flex items-center justify-between border-b border-amber-900/15 pb-4">
+              <div className="flex items-center justify-between border-b border-emerald-950/10 pb-5">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-emerald-700 text-white rounded-xl shadow">
+                  <div className="p-3.5 bg-emerald-700 text-white rounded-2xl shadow-md">
                     <Cpu className="w-6 h-6" />
                   </div>
                   <div>
                     <h2 className="text-xl font-black text-slate-900 tracking-wide">National Land Policy & Zoning Simulation Engine</h2>
-                    <p className="text-xs text-slate-500">Test policy interventions digitally to evaluate spatial, environmental, and socio-economic outcomes before on-ground rollout.</p>
+                    <p className="text-xs text-slate-500 font-medium">Test policy interventions digitally to evaluate spatial, environmental, and socio-economic outcomes before on-ground rollout.</p>
                   </div>
                 </div>
 
                 {/* Step Indicator */}
-                <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-amber-900/10 shadow-inner">
+                <div className="flex items-center gap-2.5 bg-[#FAF8F5] px-5 py-2.5 rounded-2xl border border-emerald-950/10 shadow-2xs">
                   <span className="text-xs font-black text-emerald-700 uppercase tracking-widest">Step {simStep} of 3:</span>
                   <span className="text-xs font-bold text-slate-700">
                     {simStep === 1 ? "Select Region" : simStep === 2 ? "Choose Policy & Parameters" : "Dynamic Impact Results & Scenario Comparison"}
@@ -618,14 +601,14 @@ export default function Dashboard() {
               {simStep === 1 && (
                 <div className="space-y-6">
                   <div className="grid grid-cols-3 gap-6">
-                    <div className="bg-white border border-amber-900/10 p-5 rounded-2xl shadow-inner space-y-4">
+                    <div className="bg-[#FAF8F5] border border-emerald-950/10 p-6 rounded-2xl shadow-inner space-y-4">
                       <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-emerald-700" /> 📍 Select Study Area
                       </h3>
-                      <div className="space-y-3 text-xs">
+                      <div className="space-y-3.5 text-xs">
                         <div>
                           <label className="font-bold text-slate-600 block mb-1">State</label>
-                          <select value={selectedState} onChange={(e) => setSelectedState(e.target.value)} className="w-full bg-[#F5EFEB] border border-amber-900/20 rounded-xl p-2.5 font-semibold text-slate-800">
+                          <select value={selectedState} onChange={(e) => setSelectedState(e.target.value)} className="w-full bg-white border border-emerald-950/20 rounded-xl p-3 font-semibold text-slate-800 shadow-2xs">
                             <option>Maharashtra</option>
                             <option>Karnataka</option>
                             <option>Gujarat</option>
@@ -633,7 +616,7 @@ export default function Dashboard() {
                         </div>
                         <div>
                           <label className="font-bold text-slate-600 block mb-1">District</label>
-                          <select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)} className="w-full bg-[#F5EFEB] border border-amber-900/20 rounded-xl p-2.5 font-semibold text-slate-800">
+                          <select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)} className="w-full bg-white border border-emerald-950/20 rounded-xl p-3 font-semibold text-slate-800 shadow-2xs">
                             <option>Pune</option>
                             <option>Nagpur</option>
                             <option>Nashik</option>
@@ -641,7 +624,7 @@ export default function Dashboard() {
                         </div>
                         <div>
                           <label className="font-bold text-slate-600 block mb-1">Taluka / Corridor</label>
-                          <select value={selectedTaluka} onChange={(e) => setSelectedTaluka(e.target.value)} className="w-full bg-[#F5EFEB] border border-amber-900/20 rounded-xl p-2.5 font-semibold text-slate-800">
+                          <select value={selectedTaluka} onChange={(e) => setSelectedTaluka(e.target.value)} className="w-full bg-white border border-emerald-950/20 rounded-xl p-3 font-semibold text-slate-800 shadow-2xs">
                             <option>Haveli (Hadapsar Corridor)</option>
                             <option>Mulshi Peri-Urban</option>
                             <option>Maval Growth Zone</option>
@@ -650,31 +633,33 @@ export default function Dashboard() {
                       </div>
                     </div>
 
-                    <div className="col-span-2 bg-white border border-amber-900/10 p-5 rounded-2xl shadow-inner space-y-4">
-                      <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
-                        <Activity className="w-4 h-4 text-emerald-700" /> 📊 Baseline Conditions ({selectedTaluka})
-                      </h3>
-                      <div className="grid grid-cols-4 gap-3">
-                        <div className="p-3 bg-[#F5EFEB] rounded-xl border border-amber-900/10">
-                          <p className="text-[10px] text-slate-500 uppercase font-bold">Agricultural Land</p>
-                          <p className="text-lg font-black text-emerald-700 mt-1">62% <span className="text-[10px] text-slate-500 font-normal">(-14% since 2016)</span></p>
-                        </div>
-                        <div className="p-3 bg-[#F5EFEB] rounded-xl border border-amber-900/10">
-                          <p className="text-[10px] text-slate-500 uppercase font-bold">Built-up Area</p>
-                          <p className="text-lg font-black text-rose-600 mt-1">21% <span className="text-[10px] text-slate-500 font-normal">(+19% since 2016)</span></p>
-                        </div>
-                        <div className="p-3 bg-[#F5EFEB] rounded-xl border border-amber-900/10">
-                          <p className="text-[10px] text-slate-500 uppercase font-bold">Groundwater Stress</p>
-                          <p className="text-lg font-black text-amber-600 mt-1">Critical <span className="text-[10px] text-slate-500 font-normal">(-2.4m)</span></p>
-                        </div>
-                        <div className="p-3 bg-[#F5EFEB] rounded-xl border border-amber-900/10">
-                          <p className="text-[10px] text-slate-500 uppercase font-bold">Flood Vulnerability</p>
-                          <p className="text-lg font-black text-blue-600 mt-1">Medium <span className="text-[10px] text-slate-500 font-normal">(Drainage risk)</span></p>
+                    <div className="col-span-2 bg-[#FAF8F5] border border-emerald-950/10 p-6 rounded-2xl shadow-inner space-y-5 flex flex-col justify-between">
+                      <div className="space-y-4">
+                        <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                          <Activity className="w-4 h-4 text-emerald-700" /> 📊 Baseline Conditions ({selectedTaluka})
+                        </h3>
+                        <div className="grid grid-cols-4 gap-3.5">
+                          <div className="p-4 bg-white rounded-2xl border border-emerald-950/10 shadow-2xs">
+                            <p className="text-[10px] text-slate-400 uppercase font-black">Agricultural Land</p>
+                            <p className="text-lg font-black text-emerald-700 mt-1">62% <span className="text-[10px] text-slate-500 font-normal">(-14%)</span></p>
+                          </div>
+                          <div className="p-4 bg-white rounded-2xl border border-emerald-950/10 shadow-2xs">
+                            <p className="text-[10px] text-slate-400 uppercase font-black">Built-up Area</p>
+                            <p className="text-lg font-black text-rose-600 mt-1">21% <span className="text-[10px] text-slate-500 font-normal">(+19%)</span></p>
+                          </div>
+                          <div className="p-4 bg-white rounded-2xl border border-emerald-950/10 shadow-2xs">
+                            <p className="text-[10px] text-slate-400 uppercase font-black">Groundwater Stress</p>
+                            <p className="text-lg font-black text-amber-600 mt-1">Critical <span className="text-[10px] text-slate-500 font-normal">(-2.4m)</span></p>
+                          </div>
+                          <div className="p-4 bg-white rounded-2xl border border-emerald-950/10 shadow-2xs">
+                            <p className="text-[10px] text-slate-400 uppercase font-black">Flood Risk</p>
+                            <p className="text-lg font-black text-blue-600 mt-1">Medium <span className="text-[10px] text-slate-500 font-normal">(Drainage)</span></p>
+                          </div>
                         </div>
                       </div>
 
                       <div className="pt-2 flex justify-end">
-                        <button onClick={() => setSimStep(2)} className="px-6 py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow flex items-center gap-2 cursor-pointer">
+                        <button onClick={() => setSimStep(2)} className="px-7 py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs uppercase tracking-wider rounded-2xl shadow-md flex items-center gap-2 cursor-pointer">
                           Proceed to Policy Library <ChevronRight className="w-4 h-4" />
                         </button>
                       </div>
@@ -687,9 +672,9 @@ export default function Dashboard() {
               {simStep === 2 && (
                 <div className="space-y-6">
                   <div className="grid grid-cols-2 gap-6">
-                    <div className="bg-white border border-amber-900/10 p-5 rounded-2xl shadow-inner space-y-4">
+                    <div className="bg-[#FAF8F5] border border-emerald-950/10 p-6 rounded-2xl shadow-inner space-y-4">
                       <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">🌾 Choose Policy Scenario</h3>
-                      <div className="space-y-2 text-xs">
+                      <div className="space-y-3 text-xs">
                         {[
                           { name: "Agricultural Protection Zone", cat: "Agricultural Protection", desc: "Mandates preservation of contiguous farmlands in peri-urban corridors." },
                           { name: "Controlled Urban Growth Boundary", cat: "Urban Planning", desc: "Restricts unplanned commercial real estate sprawl beyond municipal limits." },
@@ -699,10 +684,10 @@ export default function Dashboard() {
                           <div 
                             key={idx}
                             onClick={() => setSelectedPolicyType(pol.name)}
-                            className={`p-3.5 rounded-xl border transition cursor-pointer flex justify-between items-center ${selectedPolicyType === pol.name ? 'bg-emerald-50 border-emerald-600 shadow' : 'bg-[#F5EFEB] border-amber-900/10 hover:bg-amber-100/50'}`}
+                            className={`p-4 rounded-2xl border transition cursor-pointer flex justify-between items-center shadow-2xs ${selectedPolicyType === pol.name ? 'bg-emerald-50/80 border-emerald-600 shadow-xs' : 'bg-white border-emerald-950/10 hover:bg-slate-50'}`}
                           >
                             <div className="space-y-1">
-                              <span className="text-[9px] bg-emerald-200/80 text-emerald-900 font-black px-2 py-0.5 rounded uppercase">{pol.cat}</span>
+                              <span className="text-[9px] bg-emerald-100 text-emerald-900 font-black px-2 py-0.5 rounded-full uppercase">{pol.cat}</span>
                               <p className="font-bold text-slate-900">{pol.name}</p>
                               <p className="text-[10px] text-slate-500">{pol.desc}</p>
                             </div>
@@ -712,68 +697,70 @@ export default function Dashboard() {
                       </div>
                     </div>
 
-                    <div className="bg-white border border-amber-900/10 p-5 rounded-2xl shadow-inner space-y-5">
-                      <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">⚙️ Policy Configuration Parameters</h3>
-                      
-                      <div className="space-y-4 text-xs">
-                        <div className="space-y-1.5">
-                          <div className="flex justify-between font-bold">
-                            <span className="text-slate-600">Protected Area / Restriction Target:</span>
-                            <span className="text-emerald-700 font-black">{protectedAreaPct}% of Corridor</span>
+                    <div className="bg-[#FAF8F5] border border-emerald-950/10 p-6 rounded-2xl shadow-inner space-y-5 flex flex-col justify-between">
+                      <div className="space-y-5">
+                        <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">⚙️ Policy Configuration Parameters</h3>
+                        
+                        <div className="space-y-4 text-xs">
+                          <div className="space-y-2 bg-white p-4 rounded-2xl border border-emerald-950/10 shadow-2xs">
+                            <div className="flex justify-between font-bold">
+                              <span className="text-slate-600">Protected Area / Restriction Target:</span>
+                              <span className="text-emerald-700 font-black">{protectedAreaPct}% of Corridor</span>
+                            </div>
+                            <input 
+                              type="range" 
+                              min="10" 
+                              max="50" 
+                              step="5"
+                              value={protectedAreaPct} 
+                              onChange={(e) => setProtectedAreaPct(Number(e.target.value))}
+                              className="w-full accent-emerald-700 h-2 bg-slate-200 rounded-lg cursor-pointer"
+                            />
                           </div>
-                          <input 
-                            type="range" 
-                            min="10" 
-                            max="50" 
-                            step="5"
-                            value={protectedAreaPct} 
-                            onChange={(e) => setProtectedAreaPct(Number(e.target.value))}
-                            className="w-full accent-emerald-700 h-2 bg-amber-200 rounded-lg cursor-pointer"
-                          />
-                        </div>
 
-                        <div className="space-y-1.5">
-                          <div className="flex justify-between font-bold">
-                            <span className="text-slate-600">Ecological Buffer Distance:</span>
-                            <span className="text-blue-600 font-black">{bufferDistance} meters</span>
+                          <div className="space-y-2 bg-white p-4 rounded-2xl border border-emerald-950/10 shadow-2xs">
+                            <div className="flex justify-between font-bold">
+                              <span className="text-slate-600">Ecological Buffer Distance:</span>
+                              <span className="text-blue-600 font-black">{bufferDistance} meters</span>
+                            </div>
+                            <input 
+                              type="range" 
+                              min="100" 
+                              max="1000" 
+                              step="100"
+                              value={bufferDistance} 
+                              onChange={(e) => setBufferDistance(Number(e.target.value))}
+                              className="w-full accent-blue-600 h-2 bg-slate-200 rounded-lg cursor-pointer"
+                            />
                           </div>
-                          <input 
-                            type="range" 
-                            min="100" 
-                            max="1000" 
-                            step="100"
-                            value={bufferDistance} 
-                            onChange={(e) => setBufferDistance(Number(e.target.value))}
-                            className="w-full accent-blue-600 h-2 bg-amber-200 rounded-lg cursor-pointer"
-                          />
-                        </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="font-bold text-slate-600 block mb-1">Time Horizon</label>
-                            <select value={timeHorizon} onChange={(e) => setTimeHorizon(e.target.value)} className="w-full bg-[#F5EFEB] border border-amber-900/20 rounded-xl p-2.5 font-semibold text-slate-800">
-                              <option>5 years</option>
-                              <option>10 years</option>
-                              <option>15 years</option>
-                              <option>20 years</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="font-bold text-slate-600 block mb-1">Enforcement Level</label>
-                            <select value={enforcementLevel} onChange={(e) => setEnforcementLevel(e.target.value)} className="w-full bg-[#F5EFEB] border border-amber-900/20 rounded-xl p-2.5 font-semibold text-slate-800">
-                              <option>Low</option>
-                              <option>Medium</option>
-                              <option>High (Strict Monitoring)</option>
-                            </select>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-white p-4 rounded-2xl border border-emerald-950/10 shadow-2xs space-y-1.5">
+                              <label className="font-bold text-slate-600 block">Time Horizon</label>
+                              <select value={timeHorizon} onChange={(e) => setTimeHorizon(e.target.value)} className="w-full bg-[#FAF8F5] border border-emerald-950/20 rounded-xl p-2.5 font-semibold text-slate-800">
+                                <option>5 years</option>
+                                <option>10 years</option>
+                                <option>15 years</option>
+                                <option>20 years</option>
+                              </select>
+                            </div>
+                            <div className="bg-white p-4 rounded-2xl border border-emerald-950/10 shadow-2xs space-y-1.5">
+                              <label className="font-bold text-slate-600 block">Enforcement Level</label>
+                              <select value={enforcementLevel} onChange={(e) => setEnforcementLevel(e.target.value)} className="w-full bg-[#FAF8F5] border border-emerald-950/20 rounded-xl p-2.5 font-semibold text-slate-800">
+                                <option>Low</option>
+                                <option>Medium</option>
+                                <option>High (Strict Monitoring)</option>
+                              </select>
+                            </div>
                           </div>
                         </div>
                       </div>
 
                       <div className="pt-4 flex justify-between">
-                        <button onClick={() => setSimStep(1)} className="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs uppercase tracking-wider rounded-xl cursor-pointer">Back</button>
+                        <button onClick={() => setSimStep(1)} className="px-5 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs uppercase tracking-wider rounded-xl cursor-pointer">Back</button>
                         <button 
                           onClick={() => { setSimStep(3); runSimulationProcess(); }} 
-                          className="px-6 py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow flex items-center gap-2 cursor-pointer"
+                          className="px-7 py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs uppercase tracking-wider rounded-2xl shadow-md flex items-center gap-2 cursor-pointer"
                         >
                           <Play className="w-4 h-4 fill-white" /> Run Simulation Engine
                         </button>
@@ -787,7 +774,7 @@ export default function Dashboard() {
               {simStep === 3 && (
                 <div className="space-y-6">
                   {isSimulating ? (
-                    <div className="bg-white border border-amber-900/10 rounded-2xl p-16 text-center space-y-4 shadow-inner">
+                    <div className="bg-[#FAF8F5] border border-emerald-950/10 rounded-2xl p-16 text-center space-y-4 shadow-inner">
                       <RefreshCw className="w-10 h-10 text-emerald-700 animate-spin mx-auto" />
                       <h3 className="text-lg font-black text-slate-900">Recomputing Spatial Model for "{selectedPolicyType}"...</h3>
                       <p className="text-xs text-slate-500 max-w-md mx-auto">Applying LandSim v2.1 with {protectedAreaPct}% protection and {bufferDistance}m buffer across {selectedTaluka}.</p>
@@ -796,79 +783,79 @@ export default function Dashboard() {
                     <div className="space-y-6">
                       
                       {/* Dynamic Live Policy Summary Bar */}
-                      <div className="bg-gradient-to-r from-emerald-800 to-teal-900 text-white p-4 rounded-2xl shadow flex items-center justify-between">
-                        <div className="space-y-0.5">
-                          <p className="text-[10px] uppercase font-bold text-emerald-300 tracking-wider">Active Policy Scenario</p>
+                      <div className="bg-gradient-to-r from-emerald-800 to-teal-900 text-white p-5 rounded-2xl shadow-md flex items-center justify-between">
+                        <div className="space-y-1">
+                          <p className="text-[10px] uppercase font-black text-emerald-300 tracking-wider">Active Policy Scenario</p>
                           <p className="text-sm font-black">{selectedPolicyType} ({protectedAreaPct}% Protection | {bufferDistance}m Buffer | {timeHorizon})</p>
                         </div>
-                        <button onClick={() => setSimStep(2)} className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition border border-white/20 cursor-pointer flex items-center gap-1.5">
+                        <button onClick={() => setSimStep(2)} className="px-4.5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition border border-white/20 cursor-pointer flex items-center gap-1.5 shadow-2xs">
                           <Sliders className="w-3.5 h-3.5" /> Adjust Parameters
                         </button>
                       </div>
 
                       {/* Hero KPI Results (Dynamically updated based on slider changes) */}
                       <div className="grid grid-cols-6 gap-4">
-                        <div className="bg-white border border-amber-900/10 p-4 rounded-xl shadow-inner">
-                          <p className="text-[10px] uppercase font-bold text-slate-500">Agricultural Land</p>
+                        <div className="bg-[#FAF8F5] border border-emerald-950/10 p-4.5 rounded-2xl shadow-2xs">
+                          <p className="text-[10px] uppercase font-black text-slate-400">Agricultural Land</p>
                           <p className="text-xl font-black text-emerald-700 mt-1">62% → {dynamicAgri}% <span className="text-[10px] text-emerald-600 font-bold">(+{(dynamicAgri - 62)}%)</span></p>
                         </div>
-                        <div className="bg-white border border-amber-900/10 p-4 rounded-xl shadow-inner">
-                          <p className="text-[10px] uppercase font-bold text-slate-500">Built-up Expansion</p>
+                        <div className="bg-[#FAF8F5] border border-emerald-950/10 p-4.5 rounded-2xl shadow-2xs">
+                          <p className="text-[10px] uppercase font-black text-slate-400">Built-up Expansion</p>
                           <p className="text-xl font-black text-rose-600 mt-1">21% → {dynamicBuilt}% <span className="text-[10px] text-emerald-600 font-bold">({(dynamicBuilt - 21)}%)</span></p>
                         </div>
-                        <div className="bg-white border border-amber-900/10 p-4 rounded-xl shadow-inner">
-                          <p className="text-[10px] uppercase font-bold text-slate-500">Green Cover / Trees</p>
+                        <div className="bg-[#FAF8F5] border border-emerald-950/10 p-4.5 rounded-2xl shadow-2xs">
+                          <p className="text-[10px] uppercase font-black text-slate-400">Green Cover / Trees</p>
                           <p className="text-xl font-black text-emerald-800 mt-1">9% → {dynamicCanopy}% <span className="text-[10px] text-emerald-600 font-bold">(+{(dynamicCanopy - 9)}%)</span></p>
                         </div>
-                        <div className="bg-white border border-amber-900/10 p-4 rounded-xl shadow-inner">
-                          <p className="text-[10px] uppercase font-bold text-slate-500">Water Risk Status</p>
-                          <p className="text-xl font-black text-blue-600 mt-1">{protectedAreaPct > 30 ? 'Low' : 'Medium'} <span className="text-[10px] text-emerald-600 font-bold">({bufferDistance}m buffer)</span></p>
+                        <div className="bg-[#FAF8F5] border border-emerald-950/10 p-4.5 rounded-2xl shadow-2xs">
+                          <p className="text-[10px] uppercase font-black text-slate-400">Water Risk Status</p>
+                          <p className="text-xl font-black text-blue-600 mt-1">{protectedAreaPct > 30 ? 'Low' : 'Medium'} <span className="text-[10px] text-emerald-600 font-bold">({bufferDistance}m)</span></p>
                         </div>
-                        <div className="bg-white border border-amber-900/10 p-4 rounded-xl shadow-inner">
-                          <p className="text-[10px] uppercase font-bold text-slate-500">Land Conversion</p>
-                          <p className="text-xl font-black text-slate-900 mt-1">-{(protectedAreaPct * 1.2).toFixed(0)}% <span className="text-[10px] text-emerald-600 font-bold">(Optimized)</span></p>
+                        <div className="bg-[#FAF8F5] border border-emerald-950/10 p-4.5 rounded-2xl shadow-2xs">
+                          <p className="text-[10px] uppercase font-black text-slate-400">Land Conversion</p>
+                          <p className="text-xl font-black text-slate-900 mt-1">-{(protectedAreaPct * 1.2).toFixed(0)}% <span className="text-[10px] text-emerald-600 font-bold">(Opt)</span></p>
                         </div>
-                        <div className="bg-white border border-amber-900/10 p-4 rounded-xl shadow-inner">
-                          <p className="text-[10px] uppercase font-bold text-slate-500">Beneficiaries</p>
-                          <p className="text-xl font-black text-indigo-700 mt-1">~{Math.round(20000 + protectedAreaPct * 400)} <span className="text-[10px] text-slate-500 font-normal">Households</span></p>
+                        <div className="bg-[#FAF8F5] border border-emerald-950/10 p-4.5 rounded-2xl shadow-2xs">
+                          <p className="text-[10px] uppercase font-black text-slate-400">Beneficiaries</p>
+                          <p className="text-xl font-black text-indigo-700 mt-1">~{Math.round(20000 + protectedAreaPct * 400)} <span className="text-[10px] text-slate-500 font-normal">H/H</span></p>
                         </div>
                       </div>
 
                       {/* Map Simulation Viewer Toggle & Results */}
                       <div className="grid grid-cols-12 gap-6">
-                        <div className="col-span-8 bg-white border border-amber-900/10 rounded-2xl p-5 shadow-inner space-y-4">
+                        <div className="col-span-8 bg-[#FAF8F5] border border-emerald-950/10 rounded-2xl p-6 shadow-inner space-y-4">
                           <div className="flex justify-between items-center">
                             <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
                               <MapIcon className="w-4 h-4 text-emerald-700" /> GIS Impact Map: {simMode === 'current' ? 'Current Baseline' : `Simulated Outcome (${selectedPolicyType})`}
                             </h3>
-                            <div className="flex bg-[#F5EFEB] p-1 rounded-xl border border-amber-900/10 text-xs font-bold">
-                              <button onClick={() => setSimMode("current")} className={`px-3 py-1 rounded-lg transition ${simMode === 'current' ? 'bg-emerald-700 text-white shadow' : 'text-slate-600'}`}>Current</button>
-                              <button onClick={() => setSimMode("simulated")} className={`px-3 py-1 rounded-lg transition ${simMode === 'simulated' ? 'bg-emerald-700 text-white shadow' : 'text-slate-600'}`}>Simulated Outcome</button>
+                            <div className="flex bg-white p-1 rounded-xl border border-emerald-950/10 text-xs font-bold shadow-2xs">
+                              <button onClick={() => setSimMode("current")} className={`px-3.5 py-1.5 rounded-lg transition cursor-pointer ${simMode === 'current' ? 'bg-emerald-700 text-white shadow' : 'text-slate-600'}`}>Current</button>
+                              <button onClick={() => setSimMode("simulated")} className={`px-3.5 py-1.5 rounded-lg transition cursor-pointer ${simMode === 'simulated' ? 'bg-emerald-700 text-white shadow' : 'text-slate-600'}`}>Simulated Outcome</button>
                             </div>
                           </div>
 
-                          <div className="h-80 rounded-xl overflow-hidden border border-amber-900/20 relative">
+                          <div className="h-80 rounded-2xl overflow-hidden border border-emerald-950/20 relative shadow-2xs">
                             <MapVisualizer selectedZone={selectedZone} year={currentYear} layerMode={simMode === 'simulated' ? 'thermal' : 'satellite'} />
-                            <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-amber-900/20 text-[10px] font-bold text-slate-800 shadow">
+                            <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-xl border border-emerald-950/20 text-[10px] font-black text-slate-800 shadow-md">
                               {simMode === 'current' ? '🔴 Unrestricted Urban Sprawl & Agricultural Loss' : `🟢 Active Policy: ${selectedPolicyType} (${protectedAreaPct}%)`}
                             </div>
                           </div>
                         </div>
 
                         {/* AI Recommendation & Trade-offs */}
-                        <div className="col-span-4 bg-white border border-amber-900/10 rounded-2xl p-5 shadow-inner space-y-4 flex flex-col justify-between">
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between border-b border-amber-900/10 pb-2">
+                        <div className="col-span-4 bg-[#FAF8F5] border border-emerald-950/10 rounded-2xl p-6 shadow-inner space-y-4 flex flex-col justify-between">
+                          <div className="space-y-3.5">
+                            <div className="flex items-center justify-between border-b border-emerald-950/10 pb-3">
                               <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
                                 <Sparkles className="w-4 h-4 text-emerald-700" /> AI Policy Recommendation
                               </h3>
-                              <span className="text-[10px] bg-emerald-100 text-emerald-800 font-black px-2 py-0.5 rounded">Confidence 88%</span>
+                              <span className="text-[10px] bg-emerald-100 text-emerald-800 font-black px-2.5 py-0.5 rounded-full">Confidence 88%</span>
                             </div>
-                            <p className="text-xs font-bold text-emerald-800">Evaluated Scenario: {selectedPolicyType}</p>
+                            <p className="text-xs font-bold text-emerald-900">Evaluated Scenario: {selectedPolicyType}</p>
                             <p className="text-[11px] text-slate-600 leading-relaxed">Setting a {protectedAreaPct}% threshold with a {bufferDistance}m buffer successfully preserves critical ecological zones in {selectedTaluka} with minimal economic friction.</p>
                             
-                            <div className="space-y-1 pt-2">
-                              <p className="text-[10px] font-extrabold uppercase text-slate-500">Key Trade-offs:</p>
+                            <div className="space-y-1.5 pt-1">
+                              <p className="text-[10px] font-black uppercase text-slate-400">Key Trade-offs:</p>
                               <div className="text-[11px] text-slate-700 space-y-1">
                                 <p className="flex items-center gap-1.5">✅ Preserves {dynamicAgri}% agricultural productivity.</p>
                                 <p className="flex items-center gap-1.5">⚠️ Estimated implementation cost: ₹{(protectedAreaPct * 0.71).toFixed(1)} Cr.</p>
@@ -876,57 +863,57 @@ export default function Dashboard() {
                             </div>
                           </div>
 
-                          <button onClick={() => alert(`Evidence-based Policy Report for "${selectedPolicyType}" Generated Successfully with Blockchain Hash #48921!`)} className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow flex items-center justify-center gap-2 cursor-pointer">
+                          <button onClick={() => alert(`Evidence-based Policy Report for "${selectedPolicyType}" Generated Successfully with Blockchain Hash #48921!`)} className="w-full py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs uppercase tracking-wider rounded-2xl shadow-md flex items-center justify-center gap-2 cursor-pointer">
                             <FileText className="w-4 h-4" /> Generate Policy Report
                           </button>
                         </div>
                       </div>
 
                       {/* Scenario Comparison Table */}
-                      <div className="bg-white border border-amber-900/10 rounded-2xl p-6 shadow-inner space-y-4">
+                      <div className="bg-[#FAF8F5] border border-emerald-950/10 rounded-2xl p-6 shadow-inner space-y-4">
                         <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">📊 Scenario Comparison Matrix</h3>
                         <div className="overflow-x-auto">
                           <table className="w-full text-xs text-left">
-                            <thead className="bg-[#F5EFEB] text-slate-700 font-black uppercase text-[10px]">
+                            <thead className="bg-white text-slate-700 font-black uppercase text-[10px]">
                               <tr>
-                                <th className="p-3 rounded-l-xl">Indicator</th>
-                                <th className="p-3">Business as Usual</th>
-                                <th className="p-3">Selected ({selectedPolicyType} @ {protectedAreaPct}%)</th>
-                                <th className="p-3 rounded-r-xl">Aggressive Protection (40%)</th>
+                                <th className="p-3.5 rounded-l-xl">Indicator</th>
+                                <th className="p-3.5">Business as Usual</th>
+                                <th className="p-3.5">Selected ({selectedPolicyType} @ {protectedAreaPct}%)</th>
+                                <th className="p-3.5 rounded-r-xl">Aggressive Protection (40%)</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-amber-900/10 font-medium">
+                            <tbody className="divide-y divide-emerald-950/10 font-medium">
                               <tr>
-                                <td className="p-3 font-bold text-slate-900">Agricultural Land Retention</td>
-                                <td className="p-3 text-rose-600 font-bold">54%</td>
-                                <td className="p-3 text-emerald-700 font-bold">{dynamicAgri}% (Active)</td>
-                                <td className="p-3 text-emerald-800 font-bold">72%</td>
+                                <td className="p-3.5 font-bold text-slate-900">Agricultural Land Retention</td>
+                                <td className="p-3.5 text-rose-600 font-bold">54%</td>
+                                <td className="p-3.5 text-emerald-700 font-bold">{dynamicAgri}% (Active)</td>
+                                <td className="p-3.5 text-emerald-800 font-bold">72%</td>
                               </tr>
                               <tr>
-                                <td className="p-3 font-bold text-slate-900">Urban Expansion Rate</td>
-                                <td className="p-3 text-rose-600 font-bold">+24%</td>
-                                <td className="p-3 text-emerald-700 font-bold">+{Math.max(5, 25 - protectedAreaPct)}%</td>
-                                <td className="p-3 text-slate-600">+8%</td>
+                                <td className="p-3.5 font-bold text-slate-900">Urban Expansion Rate</td>
+                                <td className="p-3.5 text-rose-600 font-bold">+24%</td>
+                                <td className="p-3.5 text-emerald-700 font-bold">+{Math.max(5, 25 - protectedAreaPct)}%</td>
+                                <td className="p-3.5 text-slate-600">+8%</td>
                               </tr>
                               <tr>
-                                <td className="p-3 font-bold text-slate-900">Groundwater Risk Level</td>
-                                <td className="p-3 text-rose-600 font-bold">High</td>
-                                <td className="p-3 text-amber-600 font-bold">{protectedAreaPct > 25 ? 'Low' : 'Medium'}</td>
-                                <td className="p-3 text-emerald-700 font-bold">Low</td>
+                                <td className="p-3.5 font-bold text-slate-900">Groundwater Risk Level</td>
+                                <td className="p-3.5 text-rose-600 font-bold">High</td>
+                                <td className="p-3.5 text-amber-600 font-bold">{protectedAreaPct > 25 ? 'Low' : 'Medium'}</td>
+                                <td className="p-3.5 text-emerald-700 font-bold">Low</td>
                               </tr>
                               <tr>
-                                <td className="p-3 font-bold text-slate-900">Implementation Cost</td>
-                                <td className="p-3 text-emerald-700 font-bold">Low (₹0 Cr)</td>
-                                <td className="p-3 text-amber-600 font-bold">₹{(protectedAreaPct * 0.71).toFixed(1)} Cr</td>
-                                <td className="p-3 text-rose-600 font-bold">High (₹32.8 Cr)</td>
+                                <td className="p-3.5 font-bold text-slate-900">Implementation Cost</td>
+                                <td className="p-3.5 text-emerald-700 font-bold">Low (₹0 Cr)</td>
+                                <td className="p-3.5 text-amber-600 font-bold">₹{(protectedAreaPct * 0.71).toFixed(1)} Cr</td>
+                                <td className="p-3.5 text-rose-600 font-bold">High (₹32.8 Cr)</td>
                               </tr>
                             </tbody>
                           </table>
                         </div>
 
                         <div className="pt-2 flex justify-between">
-                          <button onClick={() => setSimStep(2)} className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs uppercase tracking-wider rounded-xl cursor-pointer">Modify Parameters</button>
-                          <button onClick={() => setSimStep(1)} className="px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold text-xs uppercase tracking-wider rounded-xl cursor-pointer">Start New Simulation</button>
+                          <button onClick={() => setSimStep(2)} className="px-4.5 py-2.5 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs uppercase tracking-wider rounded-xl cursor-pointer border border-emerald-950/10 shadow-2xs">Modify Parameters</button>
+                          <button onClick={() => setSimStep(1)} className="px-4.5 py-2.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-xs uppercase tracking-wider rounded-xl cursor-pointer shadow-2xs">Start New Simulation</button>
                         </div>
                       </div>
 
@@ -944,65 +931,65 @@ export default function Dashboard() {
                 
                 {/* 4 Top Metric Cards */}
                 <div className="grid grid-cols-4 gap-4">
-                  <div className="bg-[#F5EFEB] border border-amber-900/10 rounded-2xl p-4 flex items-center gap-3 shadow-sm relative overflow-hidden group hover:border-emerald-500 transition">
-                    <div className="p-2.5 bg-emerald-100 rounded-xl border border-emerald-200 text-emerald-700 shrink-0">
+                  <div className="bg-white border border-emerald-950/10 rounded-2xl p-4 flex items-center gap-3.5 shadow-xs relative overflow-hidden group hover:border-emerald-500 transition">
+                    <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-700 shrink-0">
                       <Sprout className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-[9px] uppercase tracking-widest text-slate-500 font-extrabold">Agriculture</p>
+                      <p className="text-[9px] uppercase tracking-widest text-slate-400 font-black">Agriculture</p>
                       <p className="text-sm font-black text-slate-900 mt-0.5">{displayAgri}% <span className="text-[9px] text-emerald-700 font-bold">Farmland</span></p>
                     </div>
                   </div>
 
-                  <div className="bg-[#F5EFEB] border border-amber-900/10 rounded-2xl p-4 flex items-center gap-3 shadow-sm relative overflow-hidden group hover:border-emerald-500 transition">
-                    <div className="p-2.5 bg-emerald-100 rounded-xl border border-emerald-200 text-emerald-700 shrink-0">
+                  <div className="bg-white border border-emerald-950/10 rounded-2xl p-4 flex items-center gap-3.5 shadow-xs relative overflow-hidden group hover:border-emerald-500 transition">
+                    <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-700 shrink-0">
                       <Trees className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-[9px] uppercase tracking-widest text-slate-500 font-extrabold">Forest & Trees</p>
+                      <p className="text-[9px] uppercase tracking-widest text-slate-400 font-black">Forest & Trees</p>
                       <p className="text-sm font-black text-slate-900 mt-0.5">{displayCanopy}% <span className="text-[9px] text-emerald-700 font-bold">Canopy</span></p>
                     </div>
                   </div>
 
-                  <div className="bg-[#F5EFEB] border border-amber-900/10 rounded-2xl p-4 flex items-center gap-3 shadow-sm relative overflow-hidden group hover:border-rose-500 transition">
-                    <div className="p-2.5 bg-rose-100 rounded-xl border border-rose-200 text-rose-600 shrink-0">
+                  <div className="bg-white border border-emerald-950/10 rounded-2xl p-4 flex items-center gap-3.5 shadow-xs relative overflow-hidden group hover:border-rose-500 transition">
+                    <div className="p-2.5 bg-rose-50 rounded-xl border border-rose-200 text-rose-600 shrink-0">
                       <Building2 className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-[9px] uppercase tracking-widest text-slate-500 font-extrabold">Built Structures</p>
+                      <p className="text-[9px] uppercase tracking-widest text-slate-400 font-black">Built Structures</p>
                       <p className="text-sm font-black text-slate-900 mt-0.5">{displayBuilt}% <span className="text-[9px] text-rose-600 font-bold">Density</span></p>
                     </div>
                   </div>
 
-                  <div className="bg-[#F5EFEB] border border-amber-900/10 rounded-2xl p-4 flex items-center gap-3 shadow-sm relative overflow-hidden group hover:border-blue-500 transition">
-                    <div className="p-2.5 bg-blue-100 rounded-xl border border-blue-200 text-blue-600 shrink-0">
+                  <div className="bg-white border border-emerald-950/10 rounded-2xl p-4 flex items-center gap-3.5 shadow-xs relative overflow-hidden group hover:border-blue-500 transition">
+                    <div className="p-2.5 bg-blue-50 rounded-xl border border-blue-200 text-blue-600 shrink-0">
                       <Waves className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-[9px] uppercase tracking-widest text-slate-500 font-extrabold">Water Resources</p>
+                      <p className="text-[9px] uppercase tracking-widest text-slate-400 font-black">Water Resources</p>
                       <p className="text-sm font-black text-slate-900 mt-0.5">{displayWater}% <span className="text-[9px] text-blue-600 font-bold">Flow</span></p>
                     </div>
                   </div>
                 </div>
 
                 {/* Restored Original Large Map Visualizer Card (h-[650px]) */}
-                <div className="bg-[#F5EFEB] border border-amber-900/10 rounded-2xl p-4 shadow-sm flex flex-col h-[650px] relative overflow-hidden">
+                <div className="bg-white border border-emerald-950/10 rounded-3xl p-5 shadow-xs flex flex-col h-[650px] relative overflow-hidden">
                   
-                  <div className="flex-1 rounded-xl overflow-hidden border border-amber-900/20 relative shadow-inner flex flex-col">
+                  <div className="flex-1 rounded-2xl overflow-hidden border border-emerald-950/15 relative shadow-inner flex flex-col">
                     <div className="flex-1 relative">
                       <MapVisualizer selectedZone={selectedZone} year={currentYear} layerMode={activeLayer} />
 
                       {/* Realistic Search Bar on Top Left of Map */}
                       <div className="absolute top-4 left-4 z-20 w-80">
                         <div className="relative">
-                          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                           <input 
                             type="text" 
                             list="location-options"
                             value={searchTerm}
                             onChange={handleSearch}
-                            placeholder="Search Survey No., Village, Taluka, District..." 
-                            className="w-full bg-[#FDFBF7]/95 backdrop-blur-md border border-amber-900/20 rounded-xl py-2 pl-10 pr-4 text-xs font-semibold text-slate-800 placeholder:text-slate-500 shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-700"
+                            placeholder="Search Survey No., Village, Taluka..." 
+                            className="w-full bg-white/95 backdrop-blur-md border border-emerald-950/20 rounded-2xl py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-800 placeholder:text-slate-400 shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-700"
                           />
                           <datalist id="location-options">
                             <option value="Hadapsar Peri-Urban" />
@@ -1013,37 +1000,37 @@ export default function Dashboard() {
 
                       {/* Satellite / Map / Terrain Toggles on Top Right of Map */}
                       <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
-                        <div className="bg-[#FDFBF7]/95 backdrop-blur-md border border-amber-900/20 rounded-xl p-1 flex items-center gap-1 text-xs font-bold text-slate-700 shadow-lg">
-                          <button onClick={() => setActiveLayer("satellite")} className={`px-3 py-1 rounded-lg transition ${activeLayer === 'satellite' ? 'bg-emerald-700 text-white shadow' : 'hover:bg-amber-100'}`}>Satellite</button>
-                          <button onClick={() => setActiveLayer("thermal")} className={`px-3 py-1 rounded-lg transition ${activeLayer === 'thermal' ? 'bg-amber-600 text-white shadow' : 'hover:bg-amber-100'}`}>Map</button>
-                          <button onClick={() => setActiveLayer("moisture")} className={`px-3 py-1 rounded-lg transition ${activeLayer === 'moisture' ? 'bg-blue-600 text-white shadow' : 'hover:bg-amber-100'}`}>Terrain</button>
+                        <div className="bg-white/95 backdrop-blur-md border border-emerald-950/20 rounded-2xl p-1 flex items-center gap-1 text-xs font-bold text-slate-700 shadow-lg">
+                          <button onClick={() => setActiveLayer("satellite")} className={`px-3.5 py-1.5 rounded-xl transition cursor-pointer ${activeLayer === 'satellite' ? 'bg-emerald-700 text-white shadow' : 'hover:bg-slate-100'}`}>Satellite</button>
+                          <button onClick={() => setActiveLayer("thermal")} className={`px-3.5 py-1.5 rounded-xl transition cursor-pointer ${activeLayer === 'thermal' ? 'bg-amber-600 text-white shadow' : 'hover:bg-slate-100'}`}>Map</button>
+                          <button onClick={() => setActiveLayer("moisture")} className={`px-3.5 py-1.5 rounded-xl transition cursor-pointer ${activeLayer === 'moisture' ? 'bg-blue-600 text-white shadow' : 'hover:bg-slate-100'}`}>Terrain</button>
                         </div>
                       </div>
 
                       {/* Floating Survey Parcel Card with DB synced details */}
                       {showParcelCard && activeData && (
-                        <div className="absolute top-16 right-16 z-20 bg-[#FDFBF7]/95 backdrop-blur-md border border-amber-900/20 p-4 rounded-2xl shadow-2xl w-80 space-y-3">
-                          <div className="flex justify-between items-center border-b border-amber-900/10 pb-2">
-                            <span className="text-xs font-black text-emerald-800 uppercase tracking-widest flex items-center gap-1.5">
+                        <div className="absolute top-16 right-16 z-20 bg-white/95 backdrop-blur-md border border-emerald-950/20 p-5 rounded-2xl shadow-2xl w-80 space-y-3">
+                          <div className="flex justify-between items-center border-b border-emerald-950/10 pb-2.5">
+                            <span className="text-xs font-black text-emerald-900 uppercase tracking-widest flex items-center gap-1.5">
                               <Trees className="w-3.5 h-3.5 text-emerald-700" /> {activeData.name}
                             </span>
-                            <button onClick={() => setShowParcelCard(false)} className="text-slate-400 hover:text-slate-700"><X className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => setShowParcelCard(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer"><X className="w-3.5 h-3.5" /></button>
                           </div>
-                          <p className="text-[10px] text-slate-500 font-semibold -mt-2">Pune, Maharashtra</p>
-                          <div className="grid grid-cols-2 gap-y-2 text-[11px]">
-                            <span className="text-slate-500 font-medium">Land Use:</span> <span className="font-bold text-emerald-700 bg-emerald-50 px-1 rounded">{activeData.currentZoning}</span>
+                          <p className="text-[10px] text-slate-400 font-bold -mt-2">Pune, Maharashtra</p>
+                          <div className="grid grid-cols-2 gap-y-2.5 text-[11px]">
+                            <span className="text-slate-500 font-medium">Land Use:</span> <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">{activeData.currentZoning}</span>
                             <span className="text-slate-500 font-medium">Area:</span> <span className="font-bold text-slate-900">2.84 ha</span>
-                            <span className="text-slate-500 font-medium">Risk Level:</span> <span className="font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 inline-block text-center">{activeData.riskFactors.floodRisk}</span>
-                            <span className="text-slate-500 font-medium">Land-use change:</span> <span className="font-bold text-rose-600 bg-rose-50 px-1 rounded">{activeData.historicalData.groundwaterDepletion}</span>
-                            <span className="text-slate-500 font-medium">Data confidence:</span> <span className="font-bold text-emerald-700 bg-emerald-50 px-1 rounded">94%</span>
+                            <span className="text-slate-500 font-medium">Risk Level:</span> <span className="font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 inline-block text-center">{activeData.riskFactors.floodRisk}</span>
+                            <span className="text-slate-500 font-medium">Land-use change:</span> <span className="font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">{activeData.historicalData.groundwaterDepletion}</span>
+                            <span className="text-slate-500 font-medium">Data confidence:</span> <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">94%</span>
                           </div>
                         </div>
                       )}
 
                       {/* Original Detailed Legend on Bottom Left */}
-                      <div className="absolute bottom-4 left-4 z-20 bg-[#FDFBF7]/90 backdrop-blur-md border border-amber-900/20 p-3 rounded-2xl shadow-lg text-[10px] space-y-1.5 w-72">
+                      <div className="absolute bottom-4 left-4 z-20 bg-white/90 backdrop-blur-md border border-emerald-950/20 p-3.5 rounded-2xl shadow-lg text-[10px] space-y-2 w-72">
                         <div className="font-black text-slate-900 uppercase tracking-wider mb-1">LEGEND</div>
-                        <div className="grid grid-cols-2 gap-x-3 gap-y-1 font-semibold text-slate-700">
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 font-semibold text-slate-700">
                           <div className="flex items-center gap-1.5"><span className="w-3 h-3 bg-amber-500 rounded-sm shrink-0" /> Selected Parcel</div>
                           <div className="flex items-center gap-1.5"><span className="w-3 h-3 bg-emerald-600 rounded-sm shrink-0" /> Agricultural Land</div>
                           <div className="flex items-center gap-1.5"><span className="w-3 h-3 bg-rose-600 rounded-sm shrink-0" /> Cadastral Boundary</div>
@@ -1056,17 +1043,17 @@ export default function Dashboard() {
                       </div>
 
                       {/* Map Zoom Controls on Bottom Right */}
-                      <div className="absolute bottom-4 right-4 z-20 bg-[#FDFBF7]/95 backdrop-blur-md border border-amber-900/20 rounded-xl p-1 flex flex-col gap-1 shadow-lg">
-                        <button className="p-2 hover:bg-amber-100 rounded-lg text-slate-700"><Navigation className="w-3.5 h-3.5" /></button>
-                        <button className="p-2 hover:bg-amber-100 rounded-lg text-slate-700 border-t border-amber-900/10"><Plus className="w-3.5 h-3.5" /></button>
-                        <button className="p-2 hover:bg-amber-100 rounded-lg text-slate-700 border-t border-amber-900/10"><Minus className="w-3.5 h-3.5" /></button>
-                        <button className="p-2 hover:bg-amber-100 rounded-lg text-slate-700 border-t border-amber-900/10"><Crosshair className="w-3.5 h-3.5" /></button>
+                      <div className="absolute bottom-4 right-4 z-20 bg-white/95 backdrop-blur-md border border-emerald-950/20 rounded-2xl p-1 flex flex-col gap-1 shadow-lg">
+                        <button className="p-2.5 hover:bg-slate-100 rounded-xl text-slate-700 cursor-pointer"><Navigation className="w-3.5 h-3.5" /></button>
+                        <button className="p-2.5 hover:bg-slate-100 rounded-xl text-slate-700 border-t border-emerald-950/10 cursor-pointer"><Plus className="w-3.5 h-3.5" /></button>
+                        <button className="p-2.5 hover:bg-slate-100 rounded-xl text-slate-700 border-t border-emerald-950/10 cursor-pointer"><Minus className="w-3.5 h-3.5" /></button>
+                        <button className="p-2.5 hover:bg-slate-100 rounded-xl text-slate-700 border-t border-emerald-950/10 cursor-pointer"><Crosshair className="w-3.5 h-3.5" /></button>
                       </div>
 
                     </div>
 
                     {/* Timeline Slider Bar Embedded Inside Map Card */}
-                    <div className="px-4 py-3 bg-[#F5EFEB] border-t border-amber-900/10 flex flex-col gap-1.5">
+                    <div className="px-6 py-4 bg-[#FAF8F5] border-t border-emerald-950/10 flex flex-col gap-2">
                       <div className="flex justify-between text-[11px] font-black uppercase tracking-wider text-slate-600">
                         <span>2015 (Agri Focus)</span>
                         <span>2020 (Transition)</span>
@@ -1079,24 +1066,24 @@ export default function Dashboard() {
                         step="5"
                         value={currentYear}
                         onChange={(e) => setCurrentYear(Number(e.target.value))}
-                        className="w-full accent-emerald-700 cursor-pointer h-2.5 bg-amber-200/70 rounded-lg shadow-inner"
+                        className="w-full accent-emerald-700 cursor-pointer h-2.5 bg-slate-200 rounded-lg shadow-inner"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Land Classification Breakdown Card (Breakdown on left, larger Pie Chart on right) */}
-                <div className="bg-[#F5EFEB] border border-amber-900/10 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+                <div className="bg-white border border-emerald-950/10 rounded-3xl p-6 shadow-xs flex items-center justify-between">
                   <div className="flex items-center justify-between w-full gap-10">
-                    <div className="flex-1 space-y-3">
+                    <div className="flex-1 space-y-3.5">
                       <h3 className="font-black text-xs uppercase tracking-wider text-slate-900 flex items-center gap-2">
                         <Activity className="w-4 h-4 text-emerald-700" /> Land Classification Breakdown ({currentYear})
                       </h3>
-                      <div className="flex flex-col gap-2.5 text-xs font-bold">
-                        <div className="flex items-center gap-2 text-emerald-600"><span className="w-3.5 h-3.5 bg-emerald-500 rounded-sm inline-block shrink-0" /> Agriculture: <span className="text-slate-900">{displayAgri}%</span></div>
-                        <div className="flex items-center gap-2 text-emerald-800"><span className="w-3.5 h-3.5 bg-emerald-700 rounded-sm inline-block shrink-0" /> Forest / Trees: <span className="text-slate-900">{displayCanopy}%</span></div>
-                        <div className="flex items-center gap-2 text-rose-600"><span className="w-3.5 h-3.5 bg-rose-600 rounded-sm inline-block shrink-0" /> Built-up Area: <span className="text-slate-900">{displayBuilt}%</span></div>
-                        <div className="flex items-center gap-2 text-blue-600"><span className="w-3.5 h-3.5 bg-blue-600 rounded-sm inline-block shrink-0" /> Water Bodies: <span className="text-slate-900">{displayWater}%</span></div>
+                      <div className="flex flex-col gap-3 text-xs font-bold">
+                        <div className="flex items-center gap-2.5 text-emerald-600"><span className="w-3.5 h-3.5 bg-emerald-500 rounded-md inline-block shrink-0 shadow-2xs" /> Agriculture: <span className="text-slate-900">{displayAgri}%</span></div>
+                        <div className="flex items-center gap-2.5 text-emerald-800"><span className="w-3.5 h-3.5 bg-emerald-700 rounded-md inline-block shrink-0 shadow-2xs" /> Forest / Trees: <span className="text-slate-900">{displayCanopy}%</span></div>
+                        <div className="flex items-center gap-2.5 text-rose-600"><span className="w-3.5 h-3.5 bg-rose-600 rounded-md inline-block shrink-0 shadow-2xs" /> Built-up Area: <span className="text-slate-900">{displayBuilt}%</span></div>
+                        <div className="flex items-center gap-2.5 text-blue-600"><span className="w-3.5 h-3.5 bg-blue-600 rounded-md inline-block shrink-0 shadow-2xs" /> Water Bodies: <span className="text-slate-900">{displayWater}%</span></div>
                       </div>
                     </div>
 
@@ -1106,7 +1093,7 @@ export default function Dashboard() {
                           <Pie data={currentPieData} cx="50%" cy="50%" innerRadius={46} outerRadius={76} paddingAngle={8} cornerRadius={6} stroke="none" dataKey="value">
                             {currentPieData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
                           </Pie>
-                          <Tooltip contentStyle={{ backgroundColor: '#FDFBF7', border: '1px solid #d97706', borderRadius: '8px', color: '#1e293b' }}/>
+                          <Tooltip contentStyle={{ backgroundColor: '#FDFBF7', border: '1px solid #d97706', borderRadius: '12px', color: '#1e293b' }}/>
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
@@ -1116,60 +1103,60 @@ export default function Dashboard() {
               </div>
 
               {/* Right Column (Parcel Intel Panel): col-span-3 */}
-              <div className="col-span-3 bg-[#F5EFEB] border border-amber-900/10 rounded-2xl flex flex-col h-full overflow-hidden shadow-sm">
+              <div className="col-span-3 bg-white border border-emerald-950/10 rounded-3xl flex flex-col h-full overflow-hidden shadow-xs">
                 
-                <div className="p-3 border-b border-amber-900/10 bg-white/80 flex items-center gap-1.5 text-emerald-800 text-[11px] uppercase tracking-wider font-extrabold">
-                  <Cpu className="w-3.5 h-3.5" /> Parcel Intel
+                <div className="p-4 border-b border-emerald-950/10 bg-[#FAF8F5] flex items-center gap-2 text-emerald-900 text-xs uppercase tracking-wider font-black">
+                  <Cpu className="w-4 h-4 text-emerald-700" /> Parcel Intel
                 </div>
 
-                <div className="p-4 space-y-3 flex-1 overflow-y-auto">
+                <div className="p-5 space-y-4 flex-1 overflow-y-auto">
                   {activeData ? (
                     <>
                       <div className="flex justify-between items-center mb-1">
                         <h3 className="font-black text-xs uppercase tracking-wide text-slate-900 truncate">{activeData.name}</h3>
-                        <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-widest border ${
-                          permitStatus === 'Approved' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 
-                          permitStatus === 'Rejected' ? 'bg-rose-100 text-rose-800 border-rose-200' : 
-                          'bg-amber-100 text-amber-800 border-amber-200'
+                        <span className={`text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest border shadow-2xs ${
+                          permitStatus === 'Approved' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 
+                          permitStatus === 'Rejected' ? 'bg-rose-50 text-rose-800 border-rose-200' : 
+                          'bg-amber-50 text-amber-800 border-amber-200'
                         }`}>
                           {permitStatus}
                         </span>
                       </div>
 
-                      <div className="bg-gradient-to-r from-emerald-100/60 to-teal-100/60 border border-emerald-200 p-3 rounded-xl flex items-center justify-between shadow-sm">
+                      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 p-4 rounded-2xl flex items-center justify-between shadow-2xs">
                         <div>
-                          <p className="text-[9px] uppercase tracking-widest text-emerald-800 font-bold">Eco-Index Score</p>
+                          <p className="text-[9px] uppercase tracking-widest text-emerald-900 font-black">Eco-Index Score</p>
                           <p className="text-2xl font-black text-slate-900 mt-0.5 tracking-tight">{healthScore} <span className="text-[10px] font-semibold text-slate-500">/ 100</span></p>
                         </div>
-                        <div className="p-2.5 bg-white rounded-xl border border-emerald-200 shadow-sm">
+                        <div className="p-3 bg-white rounded-xl border border-emerald-200 shadow-2xs">
                           <Sparkles className="w-4 h-4 text-emerald-700" />
                         </div>
                       </div>
 
-                      <div className="bg-white border border-amber-900/10 p-3 rounded-xl space-y-2 shadow-inner">
-                        <div className="flex items-center gap-2 text-emerald-700"><History className="w-3.5 h-3.5" /><h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900">Zoning Evolution</h4></div>
-                        <div className="space-y-1 text-[11px] font-medium">
+                      <div className="bg-[#FAF8F5] border border-emerald-950/10 p-4 rounded-2xl space-y-2.5 shadow-2xs">
+                        <div className="flex items-center gap-2 text-emerald-700"><History className="w-3.5 h-3.5" /><h4 className="text-[11px] font-black uppercase tracking-wider text-slate-900">Zoning Evolution</h4></div>
+                        <div className="space-y-1.5 text-[11px] font-medium">
                           <div className="flex justify-between"><span className="text-slate-500">2015:</span><span className="text-slate-700 truncate max-w-[120px]">{activeData.historicalData.useIn2015}</span></div>
                           <div className="flex justify-between"><span className="text-slate-500">2020:</span><span className="text-slate-700 truncate max-w-[120px]">{activeData.historicalData.useIn2020}</span></div>
-                          <div className="flex justify-between border-t border-amber-900/10 pt-1.5"><span className="text-slate-900 font-bold">Current:</span><span className="text-rose-600 font-black">{activeData.currentZoning}</span></div>
+                          <div className="flex justify-between border-t border-emerald-950/10 pt-2"><span className="text-slate-900 font-bold">Current:</span><span className="text-rose-600 font-black">{activeData.currentZoning}</span></div>
                         </div>
                       </div>
 
-                      <div className="bg-white border border-amber-900/10 p-3 rounded-xl space-y-2 shadow-inner">
-                        <div className="flex items-center gap-2 text-blue-600"><Droplets className="w-3.5 h-3.5" /><h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900">Hydrology & Risks</h4></div>
-                        <div className="space-y-1 text-[11px] font-medium">
+                      <div className="bg-[#FAF8F5] border border-emerald-950/10 p-4 rounded-2xl space-y-2.5 shadow-2xs">
+                        <div className="flex items-center gap-2 text-blue-600"><Droplets className="w-3.5 h-3.5" /><h4 className="text-[11px] font-black uppercase tracking-wider text-slate-900">Hydrology & Risks</h4></div>
+                        <div className="space-y-1.5 text-[11px] font-medium">
                           <div className="flex justify-between"><span className="text-slate-500">GW Stress:</span><span className="text-rose-600 font-bold">{activeData.historicalData.groundwaterDepletion}</span></div>
                           <div className="flex justify-between"><span className="text-slate-500">Flood Risk:</span><span className="text-slate-900 font-bold">{activeData.riskFactors.floodRisk}</span></div>
                         </div>
                       </div>
 
-                      <div className="bg-white border border-amber-900/10 p-3 rounded-xl space-y-2 shadow-inner">
+                      <div className="bg-[#FAF8F5] border border-emerald-950/10 p-4 rounded-2xl space-y-3 shadow-2xs">
                         <h4 className="text-[11px] font-black uppercase tracking-wider text-slate-700">Permit Authorization</h4>
-                        <div className="flex gap-2">
-                          <button onClick={() => setPermitStatus("Approved")} className="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white font-black text-[10px] uppercase tracking-wider py-2 rounded-lg flex items-center justify-center gap-1 transition shadow cursor-pointer">
+                        <div className="flex gap-2.5">
+                          <button onClick={() => setPermitStatus("Approved")} className="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white font-black text-[10px] uppercase tracking-wider py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition shadow-2xs cursor-pointer">
                             <ShieldCheck className="w-3.5 h-3.5" /> Approve
                           </button>
-                          <button onClick={() => setPermitStatus("Rejected")} className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-black text-[10px] uppercase tracking-wider py-2 rounded-lg flex items-center justify-center gap-1 transition shadow cursor-pointer">
+                          <button onClick={() => setPermitStatus("Rejected")} className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-black text-[10px] uppercase tracking-wider py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition shadow-2xs cursor-pointer">
                             <XCircle className="w-3.5 h-3.5" /> Reject
                           </button>
                         </div>

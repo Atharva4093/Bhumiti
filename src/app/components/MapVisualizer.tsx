@@ -60,6 +60,7 @@ export default function MapVisualizer({ selectedZone, layerMode = "satellite" }:
       };
       const palette = getColors();
 
+      // Render standard cluster layers
       activeData.agriClusters.forEach((cluster) => {
         L.polygon(cluster as [number, number][], { color: palette.agri, weight: 1, fillOpacity: 0.4, fillColor: palette.agri }).addTo(layerGroup);
       });
@@ -76,8 +77,22 @@ export default function MapVisualizer({ selectedZone, layerMode = "satellite" }:
         L.polygon(water as [number, number][], { color: palette.water, weight: 1, fillOpacity: 0.55, fillColor: palette.water }).addTo(layerGroup);
       });
 
+      // Render Cadastral Subplot Grid Lines (Fine brown/black survey lines)
+      if (activeData.cadastralSubplots) {
+        activeData.cadastralSubplots.forEach((subplot) => {
+          L.polygon(subplot as [number, number][], {
+            color: "#451A03",
+            weight: 1.5,
+            dashArray: "3, 3",
+            fill: false,
+            opacity: 0.85
+          }).addTo(layerGroup);
+        });
+      }
+
+      // Render Organic Irregular Yellow Boundary Outline
       const polylineCoords = [...activeData.outerBoundary, activeData.outerBoundary[0]] as [number, number][];
-      L.polyline(polylineCoords, { color: "#FBBF24", weight: 3, dashArray: "6, 8" }).addTo(layerGroup);
+      L.polyline(polylineCoords, { color: "#FBBF24", weight: 3.5, dashArray: "6, 6" }).addTo(layerGroup);
 
       const bounds = L.latLngBounds(activeData.outerBoundary as [number, number][]);
       map.flyToBounds(bounds, { padding: [50, 50], duration: 1.5 });
